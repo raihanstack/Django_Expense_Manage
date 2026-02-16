@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Expense
+from django.utils import timezone
+from datetime import timedelta
 
 def user_login(request):
     return render(request, 'login.html')
@@ -25,7 +27,22 @@ def password_reset_complete(request):
 
 
 def home(request):
-    return render(request, 'home.html')
+    recent_expenses = Expense.objects.all().order_by('-date')[:5]
+
+    total_expenses = sum(exp.amount for exp in Expense.objects.all())
+
+    today = timezone.now().date()
+    month_expenses = sum(exp.amount for exp in Expense.objects.filter(date__month=today.month))
+    week_expenses = sum(exp.amount for exp in Expense.objects.filter(date__gte=today - timedelta(days=7)))
+
+    context = {
+        'recent_expenses': recent_expenses,
+        'total_expenses': total_expenses,
+        'month_expenses': month_expenses,
+        'week_expenses': week_expenses,
+    }
+    return render(request, 'home.html', context)
+
 
 def expense_list(request):
     return render(request, 'expense_list.html')
