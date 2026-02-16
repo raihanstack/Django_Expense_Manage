@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Expense Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col text-center">
+            <h1 class="display-5">Welcome to Expense Manager</h1>
+            <p class="lead">Track your expenses easily and efficiently.</p>
+            <a href="{% url 'expense_create' %}" class="btn btn-primary btn-lg">Add New Expense</a>
+        </div>
+    </div>
+
+    <!-- Quick summary cards -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Total Expenses</h5>
+                    <p class="card-text fs-3">৳0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">This Month</h5>
+                    <p class="card-text fs-3">৳0</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Last 7 Days</h5>
+                    <p class="card-text fs-3">৳0</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent expenses table -->
+    <div class="row">
+        <div class="col">
+            <h3>Recent Expenses</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>#</th>
+                            <th>Title</th>
+                            <th>Amount</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Example data, replace with Django context -->
+                        <tr>
+                            <td>1</td>
+                            <td>Groceries</td>
+                            <td>৳500</td>
+                            <td>Food</td>
+                            <td>2026-02-16</td>
+                            <td>
+                                <a href="{% url 'expense_update' id=1 %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'expense_delete' id=1 %}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Electricity Bill</td>
+                            <td>৳1500</td>
+                            <td>Utilities</td>
+                            <td>2026-02-15</td>
+                            <td>
+                                <a href="{% url 'expense_update' id=2 %}" class="btn btn-sm btn-warning">Edit</a>
+                                <a href="{% url 'expense_delete' id=2 %}" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+                        </tr>
+                        <!-- Add more rows dynamically using Django template loop -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
