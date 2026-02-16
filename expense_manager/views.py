@@ -33,3 +33,6 @@ def expense_create(request):
 
 def expense_update(request):
     return render(request, 'expense_form.html')
+
+def expense_delete(request):
+    pass
