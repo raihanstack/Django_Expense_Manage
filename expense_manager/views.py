@@ -5,17 +5,17 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 
 def user_login(request):
-    # যদি user আগে থেকেই logged-in থাকে
+
     if request.user.is_authenticated:
-        return redirect("home")  # already logged-in হলে home page এ redirect
+        return redirect("home")  
 
     if request.method == "POST":
         username_or_email = request.POST.get("username")
         password = request.POST.get("password")
 
-        # Email support
         username = username_or_email
         if "@" in username_or_email:
             try:
@@ -36,7 +36,7 @@ def user_login(request):
     return render(request, "login.html")
 
 
-
+@login_required(login_url='/login/')
 def user_logout(request):
     logout(request)
     messages.success(request, "You have been logged out.")
@@ -82,7 +82,7 @@ def password_reset_complete(request):
     return render(request, 'password_reset_complete.html')
 
 
-
+@login_required(login_url='/login/')
 def home(request):
     recent_expenses = Expense.objects.all().order_by('-date')[:5]
 
@@ -100,16 +100,19 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-
+@login_required(login_url='/login/')
 def expense_list(request):
     return render(request, 'expense_list.html')
 
+@login_required(login_url='/login/')
 def expense_create(request):
     return render(request, 'expense_form.html')
 
+@login_required(login_url='/login/')
 def expense_update(request):
     return render(request, 'expense_form.html')
 
+@login_required(login_url='/login/')
 def expense_delete(request, id):
     expense = get_object_or_404(Expense, id=id)
     if request.method == 'POST':
