@@ -12,18 +12,12 @@
                 <!-- Django Messages -->
                 {% if messages %}
                     {% for message in messages %}
-                        <div class="alert alert-dismissible fade show rounded-3 text-white
-                            {% if message.tags == 'error' %}
-                                bg-danger
-                            {% elif message.tags == 'success' %}
-                                bg-success
-                            {% else %}
-                                bg-primary
-                            {% endif %}
-                        " role="alert">
-
+                        <div class="alert alert-dismissible fade show rounded-3 
+                            {% if message.tags == 'error' %}bg-danger
+                            {% elif message.tags == 'success' %}bg-success
+                            {% else %}bg-primary{% endif %} text-white" 
+                            role="alert">
                             {{ message }}
-
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
                         </div>
                     {% endfor %}
@@ -42,7 +36,8 @@
                             name="username"
                             value="{{ request.POST.username }}"
                             placeholder="Enter username or email"
-                            required>
+                            required
+                            autofocus>
                     </div>
 
                     <!-- Password -->
@@ -69,7 +64,7 @@
                         </label>
                     </div>
 
-                    <!-- Submit -->
+                    <!-- Submit Button -->
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary">
                             Login
@@ -80,16 +75,9 @@
                 <hr>
 
                 <div class="text-center">
-                    <a href="{% url 'password_reset_request' %}">
-                        Forgot password?
-                    </a>
+                    <a href="{% url 'password_reset_request' %}">Forgot password?</a>
                     <br>
-                    <span>
-                        Don't have an account?
-                        <a href="{% url 'register' %}">
-                            Register here
-                        </a>
-                    </span>
+                    <span>Don't have an account? <a href="{% url 'register' %}">Register here</a></span>
                 </div>
 
             </div>

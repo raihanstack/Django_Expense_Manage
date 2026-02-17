@@ -7,7 +7,7 @@ urlpatterns = [
 
     # User authentication
     path('login/', views.user_login, name='login'),
-    path('logout/', views.user_loginout, name='logout'),
+    path('logout/', views.user_logout, name='logout'),
     path('register/', views.user_register, name='register'),
 
     # Password reset flow
@@ -20,5 +20,5 @@ urlpatterns = [
     path('expenses/', views.expense_list, name='expense_list'),
     path('expenses/create/', views.expense_create, name='expense_create'),
     path('expenses/update/<int:id>/', views.expense_update, name='expense_update'),
-    path('expenses/delete/<int:id>/', views.expense_delete, name='expense_delete'),  # delete id-based
+    path('expenses/delete/<int:id>/', views.expense_delete, name='expense_delete'),
 ]

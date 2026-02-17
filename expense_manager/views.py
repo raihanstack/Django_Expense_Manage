@@ -4,12 +4,37 @@ from django.utils import timezone
 from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
 
 def user_login(request):
-    return render(request, 'login.html')
+    if request.method == "POST":
+        username_or_email = request.POST.get("username")
+        password = request.POST.get("password")
 
-def user_loginout(request):
-    return redirect('login')
+        if "@" in username_or_email:
+            try:
+                user_obj = User.objects.get(email=username_or_email)
+                username = user_obj.username
+            except User.DoesNotExist:
+                username = username_or_email
+        else:
+            username = username_or_email
+
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            login(request, user)
+            messages.success(request, "Login Successful!")
+            return redirect("home")
+        else:
+            messages.error(request, "Invalid Username or Password!")
+
+    return render(request, "login.html")
+
+def user_logout(request):
+    logout(request)
+    messages.success(request, "You have been logged out.")
+    return redirect("login")
 
 def user_register(request):
 
