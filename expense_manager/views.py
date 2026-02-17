@@ -7,18 +7,22 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 
 def user_login(request):
+    # যদি user আগে থেকেই logged-in থাকে
+    if request.user.is_authenticated:
+        return redirect("home")  # already logged-in হলে home page এ redirect
+
     if request.method == "POST":
         username_or_email = request.POST.get("username")
         password = request.POST.get("password")
 
+        # Email support
+        username = username_or_email
         if "@" in username_or_email:
             try:
                 user_obj = User.objects.get(email=username_or_email)
                 username = user_obj.username
             except User.DoesNotExist:
-                username = username_or_email
-        else:
-            username = username_or_email
+                pass
 
         user = authenticate(request, username=username, password=password)
 
@@ -31,12 +35,18 @@ def user_login(request):
 
     return render(request, "login.html")
 
+
+
 def user_logout(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("login")
 
+
 def user_register(request):
+    
+    if request.user.is_authenticated:
+        return redirect("home")
 
     if request.method == "POST":
         username = request.POST.get("username")
@@ -45,24 +55,18 @@ def user_register(request):
         password2 = request.POST.get("password2")
 
         if password1 != password2:
-            messages.error(request, "Password do not match!")
-
+            messages.error(request, "Passwords do not match!")
         elif User.objects.filter(username=username).exists():
-            messages.error(request, "Username Already Taken!")
-
+            messages.error(request, "Username already taken!")
         elif User.objects.filter(email=email).exists():
-            messages.error(request, "Email Already Registered!")
-
+            messages.error(request, "Email already registered!")
         else:
-            User.objects.create_user(
-                username=username,
-                email=email,
-                password=password1
-            )
-            messages.success(request, "Account Created Successfully!")
+            User.objects.create_user(username=username, email=email, password=password1)
+            messages.success(request, "Account created successfully!")
             return redirect("login")
 
-    return render(request, 'register.html')
+    return render(request, "register.html")
+
 
 
 def password_reset_request(request):
