@@ -18,8 +18,8 @@ def user_login(request):
         return redirect("home")  
 
     if request.method == "POST":
-        email = request.POST.get("email") 
-        password = request.POST.get("password")
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "")
 
         user = None
         if email:
@@ -80,7 +80,7 @@ def password_reset_request(request):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             domain = get_current_site(request).domain
-            reset_link = f'https://{domain}/password-reset/confirm/{uid}/{token}/'
+            reset_link = f'http://{domain}/password-reset/confirm/{uid}/{token}/'
 
             # email content
             message = render_to_string("password_reset_email.html", {"reset_link": reset_link})
@@ -102,7 +102,30 @@ def password_reset_request(request):
     return render(request, 'password_reset.html')
 
 
-def password_reset_confirm(request, uidb64=None, token=None):
+def password_reset_confirm(request, uidb64, token):
+    try:
+        uid = urlsafe_base64_decode(uidb64).decode()
+        user = User.objects.get(pk=uid)
+    except (User.DoesNotExist, ValueError, TypeError):
+        messages.error(request, "Invalid Reset Link.")
+        return redirect("password_reset_request")
+    
+    if not default_token_generator.check_token(user, token):
+        messages.error(request, "Invalid or expired reset link.")
+        return redirect("password_reset_request")
+    
+    if request.method == "POST":
+        new_password = request.POST.get("new_password1")
+        confirm_password = request.POST.get("new_password2")
+
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match")
+        else:
+            user.set_password(new_password)
+            user.save() 
+            messages.success(request, "Password Reset Successfully")
+            return redirect("password_reset_complete")
+
     return render(request, 'password_reset_confirm.html')
 
 
