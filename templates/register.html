@@ -8,43 +8,92 @@
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <h3 class="card-title text-center mb-4">Create an Account</h3>
-                
+
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.tags == 'error' %}
+                        <div class="alert alert-dismissible fade show rounded-3 bg-danger text-white" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
+
+                    {% else %}
+                        <div class="alert alert-dismissible fade show rounded-3 bg-success text-white" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
                 <form method="POST" action="{% url 'register' %}">
                     {% csrf_token %}
 
                     <!-- Username -->
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter username" required>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="username" 
+                            name="username" 
+                            placeholder="Enter username" 
+                            value="{{ request.POST.username }}"
+                            required>
                     </div>
 
                     <!-- Email -->
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                        <input 
+                            type="email" 
+                            class="form-control" 
+                            id="email" 
+                            name="email" 
+                            placeholder="Enter email"
+                            value="{{ request.POST.email }}"
+                            required>
                     </div>
 
                     <!-- Password -->
                     <div class="mb-3">
                         <label for="password1" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password" required>
+                        <input 
+                            type="password" 
+                            class="form-control" 
+                            id="password1" 
+                            name="password1" 
+                            placeholder="Enter password" 
+                            required>
                     </div>
 
                     <!-- Confirm Password -->
                     <div class="mb-3">
                         <label for="password2" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password" required>
+                        <input 
+                            type="password" 
+                            class="form-control" 
+                            id="password2" 
+                            name="password2" 
+                            placeholder="Confirm password" 
+                            required>
                     </div>
 
                     <!-- Submit button -->
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">Register</button>
+                        <button type="submit" class="btn btn-primary">
+                            Register
+                        </button>
                     </div>
                 </form>
 
                 <div class="text-center">
-                    Already have an account? <a href="{% url 'login' %}">Login here</a>
+                    Already have an account? 
+                    <a href="{% url 'login' %}" class="text-decoration-none">
+                        Login here
+                    </a>
                 </div>
+
             </div>
         </div>
     </div>

@@ -8,40 +8,90 @@
         <div class="card shadow-sm border-0">
             <div class="card-body">
                 <h3 class="card-title text-center mb-4">Login</h3>
-                
+
+                <!-- Django Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-dismissible fade show rounded-3 text-white
+                            {% if message.tags == 'error' %}
+                                bg-danger
+                            {% elif message.tags == 'success' %}
+                                bg-success
+                            {% else %}
+                                bg-primary
+                            {% endif %}
+                        " role="alert">
+
+                            {{ message }}
+
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
                 <form method="POST" action="{% url 'login' %}">
                     {% csrf_token %}
 
-                    <!-- Username/Email field -->
+                    <!-- Username or Email -->
                     <div class="mb-3">
                         <label for="username" class="form-label">Username or Email</label>
-                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter username or email" required>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="username" 
+                            name="username"
+                            value="{{ request.POST.username }}"
+                            placeholder="Enter username or email"
+                            required>
                     </div>
 
-                    <!-- Password field -->
+                    <!-- Password -->
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                        <input 
+                            type="password" 
+                            class="form-control" 
+                            id="password" 
+                            name="password"
+                            placeholder="Enter password"
+                            required>
                     </div>
 
-                    <!-- Remember me checkbox -->
+                    <!-- Remember Me -->
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                        <label class="form-check-label" for="remember">Remember me</label>
+                        <input 
+                            type="checkbox" 
+                            class="form-check-input" 
+                            id="remember" 
+                            name="remember">
+                        <label class="form-check-label" for="remember">
+                            Remember me
+                        </label>
                     </div>
 
-                    <!-- Submit button -->
+                    <!-- Submit -->
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit" class="btn btn-primary">
+                            Login
+                        </button>
                     </div>
                 </form>
 
                 <hr>
 
                 <div class="text-center">
-                    <a href="{% url 'password_reset_request' %}">Forgot password?</a><br>
-                    <span>Don't have an account? <a href="{% url 'register' %}">Register here</a></span>
+                    <a href="{% url 'password_reset_request' %}">
+                        Forgot password?
+                    </a>
+                    <br>
+                    <span>
+                        Don't have an account?
+                        <a href="{% url 'register' %}">
+                            Register here
+                        </a>
+                    </span>
                 </div>
+
             </div>
         </div>
     </div>
