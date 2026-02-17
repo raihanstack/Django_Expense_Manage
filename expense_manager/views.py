@@ -137,7 +137,6 @@ def password_reset_complete(request):
     return render(request, 'password_reset_complete.html')
 
 
-
 @login_required(login_url='/login/')
 def home(request):
     recent_expenses = Expense.objects.all().order_by('-date')[:5]
