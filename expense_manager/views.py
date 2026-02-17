@@ -1,47 +1,49 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Expense
-from django.utils import timezone
-from datetime import timedelta
-from django.contrib import messages
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect 
+from .models import Expense 
+from django.utils import timezone 
+from datetime import timedelta 
+from django.contrib import messages 
+from django.contrib.auth.models import User 
+from django.contrib.auth import authenticate, login, logout 
+from django.contrib.auth.decorators import login_required 
+from django.contrib.auth.tokens import default_token_generator 
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode 
+from django.utils.encoding import force_bytes 
+from django.contrib.sites.shortcuts import get_current_site 
+from django.template.loader import render_to_string 
+from django.core.mail import send_mail
 
 def user_login(request):
-
     if request.user.is_authenticated:
         return redirect("home")  
 
     if request.method == "POST":
-        username_or_email = request.POST.get("username")
+        email = request.POST.get("email") 
         password = request.POST.get("password")
 
-        username = username_or_email
-        if "@" in username_or_email:
+        user = None
+        if email:
             try:
-                user_obj = User.objects.get(email=username_or_email)
-                username = user_obj.username
+                user_obj = User.objects.get(email=email) 
+            
+                user = authenticate(request, username=user_obj.username, password=password)
             except User.DoesNotExist:
-                pass
+                user = None
 
-        user = authenticate(request, username=username, password=password)
-
-        if user:
+        if user is not None:
             login(request, user)
             messages.success(request, "Login Successful!")
             return redirect("home")
         else:
-            messages.error(request, "Invalid Username or Password!")
+            messages.error(request, "Invalid Email or Password!")
 
     return render(request, "login.html")
-
 
 @login_required(login_url='/login/')
 def user_logout(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("login")
-
 
 def user_register(request):
     
@@ -68,18 +70,49 @@ def user_register(request):
     return render(request, "register.html")
 
 
-
 def password_reset_request(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            # token & uid generate
+            token = default_token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            domain = get_current_site(request).domain
+            reset_link = f'https://{domain}/password-reset/confirm/{uid}/{token}/'
+
+            # email content
+            message = render_to_string("password_reset_email.html", {"reset_link": reset_link})
+
+            # send mail
+            send_mail(
+                subject="Password Reset",
+                message=message,
+                from_email='raihan.invite@gmail.com',
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
+            messages.success(request, f"Password Reset Link has been sent to {email}")
+            return redirect("password_reset_done")
+        else:
+            messages.error(request, "User not found!")
+
     return render(request, 'password_reset.html')
 
-def password_reset_confirm(request):
+
+def password_reset_confirm(request, uidb64=None, token=None):
     return render(request, 'password_reset_confirm.html')
+
 
 def password_reset_done(request):
     return render(request, 'password_reset_done.html')
 
+
 def password_reset_complete(request):
     return render(request, 'password_reset_complete.html')
+
 
 
 @login_required(login_url='/login/')

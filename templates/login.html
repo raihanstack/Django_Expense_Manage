@@ -28,16 +28,17 @@
 
                     <!-- Username or Email -->
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username or Email</label>
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="username" 
-                            name="username"
-                            value="{{ request.POST.username }}"
-                            placeholder="Enter username or email"
-                            required
-                            autofocus>
+                        <label for="email" class="form-label">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-control" 
+                        id="email" 
+                        name="email"
+                        value="{{ request.POST.email }}"
+                        placeholder="Enter your email"
+                        required
+                        autofocus>
+
                     </div>
 
                     <!-- Password -->
