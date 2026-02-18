@@ -14,6 +14,7 @@ from django.db.models import Sum
 from datetime import timedelta
 from django.utils import timezone
 
+
 def user_login(request):
     if request.user.is_authenticated:
         return redirect("home")  
@@ -137,6 +138,7 @@ def password_reset_done(request):
 def password_reset_complete(request):
     return render(request, 'password_reset_complete.html')
 
+
 @login_required(login_url='/login/')
 def home(request):
     user = request.user
@@ -163,7 +165,9 @@ def home(request):
 
 @login_required(login_url='/login/')
 def expense_list(request):
-    return render(request, 'expense_list.html')
+    # Use select_related to get category objects efficiently
+    result = Expense.objects.filter(user=request.user).select_related('category').order_by('-date')
+    return render(request, 'expense_list.html', {"result": result})
 
 @login_required(login_url='/login/')
 def expense_create(request):
