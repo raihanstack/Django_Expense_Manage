@@ -1,7 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect 
-from .models import Expense 
-from django.utils import timezone 
-from datetime import timedelta 
+from .models import Expense, Category
 from django.contrib import messages 
 from django.contrib.auth.models import User 
 from django.contrib.auth import authenticate, login, logout 
@@ -12,6 +10,9 @@ from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site 
 from django.template.loader import render_to_string 
 from django.core.mail import send_mail
+from django.db.models import Sum
+from datetime import timedelta
+from django.utils import timezone
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -136,22 +137,27 @@ def password_reset_done(request):
 def password_reset_complete(request):
     return render(request, 'password_reset_complete.html')
 
-
 @login_required(login_url='/login/')
 def home(request):
-    recent_expenses = Expense.objects.all().order_by('-date')[:5]
-
-    total_expenses = sum(exp.amount for exp in Expense.objects.all())
-
+    user = request.user
     today = timezone.now().date()
-    month_expenses = sum(exp.amount for exp in Expense.objects.filter(date__month=today.month))
-    week_expenses = sum(exp.amount for exp in Expense.objects.filter(date__gte=today - timedelta(days=7)))
+    start_week = today - timedelta(days=7)
+    start_month = today.replace(day=1)
 
+    # Summary totals
+    total_expenses = Expense.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
+    month_expenses = Expense.objects.filter(user=user, date__gte=start_month).aggregate(total=Sum('amount'))['total'] or 0
+    week_expenses = Expense.objects.filter(user=user, date__gte=start_week).aggregate(total=Sum('amount'))['total'] or 0
+
+    # Category-wise aggregation
+    category_data = Expense.objects.filter(user=user).values('category__name').annotate(total=Sum('amount')).order_by('-total')
+
+    # Pass expenses for chart and table
     context = {
-        'recent_expenses': recent_expenses,
         'total_expenses': total_expenses,
         'month_expenses': month_expenses,
         'week_expenses': week_expenses,
+        'category_data': category_data
     }
     return render(request, 'home.html', context)
 
