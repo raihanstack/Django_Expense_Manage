@@ -44,16 +44,69 @@
                     <td>{{ expense.title|default:"-" }}</td>
                     <td>{{ expense.category.name }}</td>
                     <td>৳{{ expense.amount|floatformat:2 }}</td>
-                    <td>{{ expense.description|default:"-" }}</td>
                     <td>
+                        {% if expense.description %}
+                            {{ expense.description|truncatechars:50 }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <!-- View Button -->
+                        <a href="#" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#expenseModal{{ expense.id }}">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        <!-- Edit/Delete -->
                         <a href="{% url 'expense_update' expense.id %}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit">
-                            <i class="bi bi-pencil"></i>Edit
+                            <i class="bi bi-pencil"></i> Edit
                         </a>
                         <a href="{% url 'expense_delete' expense.id %}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Delete">
-                            <i class="bi bi-trash"></i>Delete
+                            <i class="bi bi-trash"></i> Delete
                         </a>
                     </td>
                 </tr>
+
+                <!-- Modal for full expense -->
+                <div class="modal fade" id="expenseModal{{ expense.id }}" tabindex="-1" aria-labelledby="expenseModalLabel{{ expense.id }}" aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="expenseModalLabel{{ expense.id }}">Expense Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row mb-2">
+                            <div class="col-md-4"><strong>Date:</strong></div>
+                            <div class="col-md-8">{{ expense.date|date:"M d, Y" }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4"><strong>Title:</strong></div>
+                            <div class="col-md-8">{{ expense.title }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4"><strong>Category:</strong></div>
+                            <div class="col-md-8">{{ expense.category.name }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4"><strong>Amount:</strong></div>
+                            <div class="col-md-8">৳{{ expense.amount|floatformat:2 }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-md-4"><strong>Description:</strong></div>
+                            <div class="col-md-8">
+                                <div style="max-height:150px; overflow-y:auto; border:1px solid #dee2e6; padding:10px; border-radius:5px;">
+                                    {{ expense.description|default:"-" }}
+                                </div>
+                            </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
                 {% empty %}
                 <tr>
                     <td colspan="6" class="text-center">No expenses found</td>
@@ -64,6 +117,7 @@
     </div>
 </div>
 
+<!-- Initialize Bootstrap tooltips -->
 <script>
 const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
 const tooltipList = tooltipTriggerList.map(el => new bootstrap.Tooltip(el))

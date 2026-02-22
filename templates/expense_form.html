@@ -53,6 +53,13 @@
                         <input type="date" class="form-control" id="date" name="date" 
                                value="{% if expense %}{{ expense.date|date:'Y-m-d' }}{% else %}{{ today_date }}{% endif %}" required>
                     </div>
+                    <!-- Description -->
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description">
+                        {% if expense %}{{ expense.description }}{% endif %}
+                    </textarea>
+                </div>
 
                     <!-- Submit button -->
                     <div class="d-grid mb-3">

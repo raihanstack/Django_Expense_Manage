@@ -168,14 +168,46 @@ def expense_list(request):
 @login_required(login_url='/login/')
 def expense_create(request):
     categories = Category.objects.all()
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        amount = request.POST.get("amount")
+        category_id = request.POST.get("category")
+        date = request.POST.get("date")
+        description = request.POST.get("description")
+
+        category = get_object_or_404(Category, id=category_id)
+        Expense.objects.create(
+            user=request.user,
+            title=title,
+            amount=amount,
+            category=category,
+            date=date,
+            description=description
+        )
+        messages.success(request, "Expense added successfully!")
+        return redirect("expense_list")
+
     return render(request, 'expense_form.html', {
         "categories": categories
     })
 
+
 @login_required(login_url='/login/')
 def expense_update(request, expense_id):
-    categories = Category.objects.all()
     expense = get_object_or_404(Expense, user=request.user, id=expense_id)
+    categories = Category.objects.all()
+
+    if request.method == "POST":
+        expense.title = request.POST.get("title")
+        expense.amount = request.POST.get("amount")
+        category_id = request.POST.get("category")
+        expense.category = get_object_or_404(Category, id=category_id)
+        expense.date = request.POST.get("date")
+        expense.description = request.POST.get("description")
+        expense.save()
+        messages.success(request, "Expense updated successfully!")
+        return redirect("expense_list")
 
     return render(request, 'expense_form.html', {
         "expense": expense,
