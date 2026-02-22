@@ -21,60 +21,91 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Favicon -->
-    <link rel="icon" href="{% static 'taka.png' %}" type="image/x-icon">
+    <link rel="icon" href="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png" type="image/x-icon">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+<style>
+.navbar .nav-link,
+.navbar .navbar-brand,
+.navbar .navbar-brand span {
+    color: #ffffff !important;
+}
 
+.navbar .nav-link:hover {
+    color: #ffc107 !important;
+}
+
+.navbar .navbar-toggler {
+    border-color: rgba(255,255,255,0.3);
+}
+
+.navbar .navbar-toggler-icon {
+    filter: brightness(0) invert(1); 
+}
+.navbar-collapse {
+    background: transparent;
+}
+
+@media (max-width: 991px) {
+    .navbar .nav-link {
+        padding: 10px 0;
+    }
+}
+</style>
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color:#0d6efd;">
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top" style="background: linear-gradient(90deg,#0d6efd,#0b5ed7);">
     <div class="container">
-        <a class="navbar-brand fw-bold text-white" href="{% url 'home' %}">
+
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center fw-bold text-white" href="{% url 'home' %}">
+            <img src="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png"
+                 alt="logo" width="35" height="35" class="me-2">
             Amertaka
         </a>
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <!-- Mobile Toggle Button -->
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
 
+        <!-- Navbar Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
 
                 {% if request.user.is_authenticated %}
 
                     <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold px-3" href="{% url 'home' %}">
-                            Home
+                        <a class="nav-link px-3 fw-semibold" href="{% url 'home' %}">
+                            <i class="bi bi-house-door me-1"></i> Home
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold px-3" href="{% url 'expense_list' %}">
-                            Expenses
+                        <a class="nav-link px-3 fw-semibold" href="{% url 'expense_list' %}">
+                            <i class="bi bi-wallet2 me-1"></i> Expenses
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold px-3" href="{% url 'expense_create' %}">
-                            Add Expense
+                        <a class="nav-link px-3 fw-semibold" href="{% url 'expense_create' %}">
+                            <i class="bi bi-plus-circle me-1"></i> Add Expense
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <span class="nav-link text-warning fw-bold px-3">
-                            {{ request.user.username }}
+                            <i class="bi bi-person-circle me-1"></i> {{ request.user.username }}
                         </span>
                     </li>
 
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3" href="{% url 'logout' %}">
+                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3 px-3" href="{% url 'logout' %}">
                             Logout
                         </a>
                     </li>
@@ -82,13 +113,13 @@
                 {% else %}
 
                     <li class="nav-item">
-                        <a class="nav-link text-white fw-semibold px-3" href="{% url 'login' %}">
+                        <a class="nav-link px-3 fw-semibold" href="{% url 'login' %}">
                             Login
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3" href="{% url 'register' %}">
+                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3 px-3" href="{% url 'register' %}">
                             Register
                         </a>
                     </li>
@@ -122,11 +153,11 @@
 
             <!-- Right Side (Social Icons) -->
             <div class="col-md-6 text-md-end">
-                <a href="https://github.com/raihanstack" target="_blank" class="text-dark me-3 fs-5">
-                    <i class="bi bi-github"></i>
-                </a>
                 <a href="https://facebook.com/raihanstack" target="_blank" class="text-primary me-3 fs-5">
                     <i class="bi bi-facebook"></i>
+                </a>
+                <a href="https://github.com/raihanstack" target="_blank" class="text-dark me-3 fs-5">
+                    <i class="bi bi-github"></i>
                 </a>
                 <a href="https://linkedin.com/in/raihanstack" target="_blank" class="text-primary fs-5">
                     <i class="bi bi-linkedin"></i>
