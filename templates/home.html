@@ -26,7 +26,7 @@
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <i class="bi bi-wallet2 fs-1 mb-2 text-primary"></i>
                     <h5 class="card-title">Total Expenses</h5>
-                    <p class="fs-3 fw-bold">৳{{ total_expenses }}</p>
+                    <p class="fs-3 fw-bold">৳ {{ total_expenses }}</p>
                 </div>
             </div>
         </div>
@@ -35,7 +35,7 @@
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <i class="bi bi-calendar-event fs-1 mb-2 text-success"></i>
                     <h5 class="card-title">This Month</h5>
-                    <p class="fs-3 fw-bold">৳{{ month_expenses }}</p>
+                    <p class="fs-3 fw-bold">৳ {{ month_expenses }}</p>
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <i class="bi bi-clock-history fs-1 mb-2 text-warning"></i>
                     <h5 class="card-title">Last 7 Days</h5>
-                    <p class="fs-3 fw-bold">৳{{ week_expenses }}</p>
+                    <p class="fs-3 fw-bold">৳ {{ week_expenses }}</p>
                 </div>
             </div>
         </div>
@@ -82,7 +82,7 @@
                             {% for item in category_data %}
                             <tr>
                                 <td><span class="badge bg-info">{{ item.category__name }}</span></td>
-                                <td>৳{{ item.total }}</td>
+                                <td>৳ {{ item.total }}</td>
                             </tr>
                             {% empty %}
                             <tr>

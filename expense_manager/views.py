@@ -165,7 +165,6 @@ def home(request):
 
 @login_required(login_url='/login/')
 def expense_list(request):
-    # Use select_related to get category objects efficiently
     result = Expense.objects.filter(user=request.user).select_related('category').order_by('-date')
     return render(request, 'expense_list.html', {"result": result})
 
