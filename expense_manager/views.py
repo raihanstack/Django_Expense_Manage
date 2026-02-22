@@ -48,7 +48,6 @@ def user_logout(request):
     return redirect("login")
 
 def user_register(request):
-    
     if request.user.is_authenticated:
         return redirect("home")
 
@@ -60,8 +59,6 @@ def user_register(request):
 
         if password1 != password2:
             messages.error(request, "Passwords do not match!")
-        elif User.objects.filter(username=username).exists():
-            messages.error(request, "Username already taken!")
         elif User.objects.filter(email=email).exists():
             messages.error(request, "Email already registered!")
         else:
@@ -78,16 +75,13 @@ def password_reset_request(request):
         user = User.objects.filter(email=email).first()
 
         if user:
-            # token & uid generate
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             domain = get_current_site(request).domain
             reset_link = f'http://{domain}/password-reset/confirm/{uid}/{token}/'
 
-            # email content
             message = render_to_string("password_reset_email.html", {"reset_link": reset_link})
 
-            # send mail
             send_mail(
                 subject="Password Reset",
                 message=message,
