@@ -1,100 +1,96 @@
 {% extends "base.html" %}
 
-{% block title %}Register | Expense Manager{% endblock %}
+{% block title %}Register | Amertaka{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5 col-lg-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h3 class="card-title text-center mb-4">Create an Account</h3>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4">
+                    <h3 class="card-title text-center mb-4 fw-bold">Create an Account</h3>
 
-            {% if messages %}
-                {% for message in messages %}
-                    {% if message.tags == 'error' %}
-                        <div class="alert alert-dismissible fade show rounded-3 bg-danger text-white" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                        </div>
-
-                    {% else %}
-                        <div class="alert alert-dismissible fade show rounded-3 bg-success text-white" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-                        </div>
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-dismissible fade show rounded-3 {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
                     {% endif %}
-                {% endfor %}
-            {% endif %}
 
-                <form method="POST" action="{% url 'register' %}">
-                    {% csrf_token %}
+                    <!-- Registration Form -->
+                    <form method="POST" action="{% url 'register' %}" novalidate>
+                        {% csrf_token %}
 
-                    <!-- Username -->
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input 
-                            type="text" 
-                            class="form-control" 
-                            id="username" 
-                            name="username" 
-                            placeholder="Enter username" 
-                            value="{{ request.POST.username }}"
-                            required>
-                    </div>
+                        <!-- Username -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-semibold">Username</label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="username" 
+                                name="username" 
+                                placeholder="Enter username" 
+                                value="{{ request.POST.username }}" 
+                                required>
+                        </div>
 
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input 
-                            type="email" 
-                            class="form-control" 
-                            id="email" 
-                            name="email" 
-                            placeholder="Enter email"
-                            value="{{ request.POST.email }}"
-                            required>
-                    </div>
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Email</label>
+                            <input 
+                                type="email" 
+                                class="form-control form-control-lg" 
+                                id="email" 
+                                name="email" 
+                                placeholder="Enter email" 
+                                value="{{ request.POST.email }}" 
+                                required>
+                        </div>
 
-                    <!-- Password -->
-                    <div class="mb-3">
-                        <label for="password1" class="form-label">Password</label>
-                        <input 
-                            type="password" 
-                            class="form-control" 
-                            id="password1" 
-                            name="password1" 
-                            placeholder="Enter password" 
-                            required>
-                    </div>
+                        <!-- Password -->
+                        <div class="mb-3">
+                            <label for="password1" class="form-label fw-semibold">Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control form-control-lg" 
+                                id="password1" 
+                                name="password1" 
+                                placeholder="Enter password" 
+                                required>
+                        </div>
 
-                    <!-- Confirm Password -->
-                    <div class="mb-3">
-                        <label for="password2" class="form-label">Confirm Password</label>
-                        <input 
-                            type="password" 
-                            class="form-control" 
-                            id="password2" 
-                            name="password2" 
-                            placeholder="Confirm password" 
-                            required>
-                    </div>
+                        <!-- Confirm Password -->
+                        <div class="mb-3">
+                            <label for="password2" class="form-label fw-semibold">Confirm Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control form-control-lg" 
+                                id="password2" 
+                                name="password2" 
+                                placeholder="Confirm password" 
+                                required>
+                        </div>
 
-                    <!-- Submit button -->
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary">
-                            Register
-                        </button>
-                    </div>
-                </form>
+                        <!-- Submit Button -->
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">
+                                Register
+                            </button>
+                        </div>
 
-                <div class="text-center">
-                    Already have an account? 
-                    <a href="{% url 'login' %}" class="text-decoration-none">
-                        Login here
-                    </a>
+                        <div class="text-center small">
+                            Already have an account? 
+                            <a href="{% url 'login' %}" class="text-decoration-none fw-semibold">
+                                Login here
+                            </a>
+                        </div>
+                    </form>
                 </div>
-
             </div>
+            <p class="text-center text-muted mt-3 small">© {{ now.year }} Amertaka. All rights reserved.</p>
         </div>
     </div>
 </div>

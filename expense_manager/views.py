@@ -78,7 +78,7 @@ def password_reset_request(request):
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             domain = get_current_site(request).domain
-            reset_link = f'https://{domain}/password-reset/confirm/{uid}/{token}/'
+            reset_link = f'http://{domain}/password-reset/confirm/{uid}/{token}/'
 
             message = render_to_string("password_reset_email.html", {"reset_link": reset_link})
 
