@@ -167,22 +167,19 @@ def expense_list(request):
 
 @login_required(login_url='/login/')
 def expense_create(request):
-    return render(request, 'expense_form.html')
+    categories = Category.objects.all()
+    return render(request, 'expense_form.html', {
+        "categories": categories
+    })
 
 @login_required(login_url='/login/')
 def expense_update(request, expense_id):
-    expense = get_object_or_404(Expense, id=expense_id)
+    categories = Category.objects.all()
+    expense = get_object_or_404(Expense, user=request.user, id=expense_id)
 
-    if request.method == "POST":
-        expense.title = request.POST.get("title")
-        expense.amount = request.POST.get("amount")
-        expense.category = request.POST.get("category")
-        expense.date = request.POST.get("date")
-        expense.save()
-        return redirect("expense_list")
-
-    return render(request, "expense_form.html", {
-        "expense": expense
+    return render(request, 'expense_form.html', {
+        "expense": expense,
+        "categories": categories
     })
 
 @login_required(login_url='/login/')
