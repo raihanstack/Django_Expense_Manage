@@ -146,15 +146,12 @@ def home(request):
     start_week = today - timedelta(days=7)
     start_month = today.replace(day=1)
 
-    # Summary totals
     total_expenses = Expense.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
     month_expenses = Expense.objects.filter(user=user, date__gte=start_month).aggregate(total=Sum('amount'))['total'] or 0
     week_expenses = Expense.objects.filter(user=user, date__gte=start_week).aggregate(total=Sum('amount'))['total'] or 0
 
-    # Category-wise aggregation
     category_data = Expense.objects.filter(user=user).values('category__name').annotate(total=Sum('amount')).order_by('-total')
 
-    # Pass expenses for chart and table
     context = {
         'total_expenses': total_expenses,
         'month_expenses': month_expenses,
@@ -173,13 +170,31 @@ def expense_create(request):
     return render(request, 'expense_form.html')
 
 @login_required(login_url='/login/')
-def expense_update(request):
-    return render(request, 'expense_form.html')
+def expense_update(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id)
+
+    if request.method == "POST":
+        expense.title = request.POST.get("title")
+        expense.amount = request.POST.get("amount")
+        expense.category = request.POST.get("category")
+        expense.date = request.POST.get("date")
+        expense.save()
+        return redirect("expense_list")
+
+    return render(request, "expense_form.html", {
+        "expense": expense
+    })
 
 @login_required(login_url='/login/')
-def expense_delete(request, id):
-    expense = get_object_or_404(Expense, id=id)
-    if request.method == 'POST':
+def expense_delete(request, expense_id):
+
+    expense = get_object_or_404(Expense, user=request.user, id=expense_id)
+
+    if request.method == "POST":
         expense.delete()
+        messages.success(request, "Expense Deleted Successfully!")
         return redirect('expense_list')
-    return render(request, 'expense_confirm_delete.html', {'expense': expense})
+
+    return render(request, 'expense_confirm_delete.html', {
+        "expense": expense
+    })
