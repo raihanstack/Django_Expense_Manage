@@ -32,7 +32,6 @@
                                 <th>Title</th>
                                 <th>Category</th>
                                 <th>Amount</th>
-                                <th>Description</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -42,7 +41,6 @@
                                     <td>{{ expense.title|default:"-" }}</td>
                                     <td>{{ expense.category.name }}</td>
                                     <td>৳{{ expense.amount|floatformat:2 }}</td>
-                                    <td>{{ expense.description|default:"-" }}</td>
                                     <td>
                                     <form method="POST" class="d-inline">
                                         {% csrf_token %}
