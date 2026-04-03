@@ -4,11 +4,11 @@
 
 {% block content %}
 <div class="container my-4">
-    <div class="row mb-3">
+    <div class="row mb-4 align-items-center">
         <div class="col d-flex justify-content-between align-items-center">
-            <h2 class="fw-bold">All Expenses</h2>
-            <a href="{% url 'expense_create' %}" class="btn btn-primary btn-lg fw-bold">
-                <i class="bi bi-plus-circle me-1"></i> Add Expense
+            <h2 class="fw-bold mb-0 text-dark">All Expenses</h2>
+            <a href="{% url 'expense_create' %}" class="btn btn-primary px-4 py-2 fw-semibold rounded-pill hover-lift shadow-sm">
+                <i class="bi bi-plus-circle me-2"></i> Add Expense
             </a>
         </div>
     </div>
@@ -26,44 +26,48 @@
         {% endfor %}
     {% endif %}
 
-    <div class="table-responsive shadow-sm rounded-4">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-primary">
-                <tr>
-                    <th>Date</th>
-                    <th>Title</th>
-                    <th>Category</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for expense in result %}
-                <tr>
-                    <td>{{ expense.date|date:"M d, Y" }}</td>
-                    <td>{{ expense.title|default:"-" }}</td>
-                    <td>{{ expense.category.name }}</td>
-                    <td>৳{{ expense.amount|floatformat:2 }}</td>
-                    <td>
+    <div class="card shadow-sm rounded-4 border-0 mb-5">
+        <div class="card-body p-0 table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Date</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for expense in result %}
+                    <tr class="transition-all">
+                        <td class="ps-4 text-muted fw-medium">{{ expense.date|date:"M d, Y" }}</td>
+                        <td class="fw-semibold text-dark">{{ expense.title|default:"-" }}</td>
+                        <td><span class="badge bg-light border text-dark">{{ expense.category.name }}</span></td>
+                        <td class="fw-bold text-gradient">৳{{ expense.amount|floatformat:2 }}</td>
+                    <td class="text-muted">
                         {% if expense.description %}
-                            {{ expense.description|truncatechars:50 }}
+                            {{ expense.description|truncatechars:40 }}
                         {% else %}
                             -
                         {% endif %}
                     </td>
-                    <td>
-                        <!-- View Button -->
-                        <a href="#" class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#expenseModal{{ expense.id }}">
-                            <i class="fa-solid fa-eye"></i>
-                        </a>
-                        <!-- Edit/Delete -->
-                        <a href="{% url 'expense_update' expense.id %}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit">
-                            <i class="fa-solid fa-pencil"></i>
-                        </a>
-                        <a href="{% url 'expense_delete' expense.id %}" class="btn btn-sm btn-danger" data-bs-toggle="tooltip" title="Delete">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </a>
+                    <td class="text-end pe-4">
+                        <div class="d-flex justify-content-end gap-2">
+                            <!-- View Button -->
+                            <a href="#" class="btn btn-sm btn-light border hover-lift rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" data-bs-toggle="modal" data-bs-target="#expenseModal{{ expense.id }}" title="View Details">
+                                <i class="fa-solid fa-eye text-primary"></i>
+                            </a>
+                            <!-- Edit -->
+                            <a href="{% url 'expense_update' expense.id %}" class="btn btn-sm btn-light border hover-lift rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" data-bs-toggle="tooltip" title="Edit">
+                                <i class="fa-solid fa-pencil text-warning"></i>
+                            </a>
+                            <!-- Delete -->
+                            <a href="{% url 'expense_delete' expense.id %}" class="btn btn-sm btn-light border hover-lift rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" data-bs-toggle="tooltip" title="Delete">
+                                <i class="fa-solid fa-trash-can text-danger"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
 
@@ -75,34 +79,34 @@
                         <h5 class="modal-title fw-bold" id="expenseModalLabel{{ expense.id }}">Expense Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                      <div class="modal-body">
-                        <div class="row mb-2">
-                            <div class="col-md-4 fw-semibold">Date:</div>
-                            <div class="col-md-8">{{ expense.date|date:"M d, Y" }}</div>
+                      <div class="modal-body p-4">
+                        <div class="row mb-3 pb-2 border-bottom">
+                            <div class="col-md-4 text-muted fw-medium">Date:</div>
+                            <div class="col-md-8 fw-semibold text-dark">{{ expense.date|date:"M d, Y" }}</div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-md-4 fw-semibold">Title:</div>
-                            <div class="col-md-8">{{ expense.title|default:"-" }}</div>
+                        <div class="row mb-3 pb-2 border-bottom">
+                            <div class="col-md-4 text-muted fw-medium">Title:</div>
+                            <div class="col-md-8 fw-semibold text-dark">{{ expense.title|default:"-" }}</div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-md-4 fw-semibold">Category:</div>
-                            <div class="col-md-8">{{ expense.category.name }}</div>
+                        <div class="row mb-3 pb-2 border-bottom">
+                            <div class="col-md-4 text-muted fw-medium">Category:</div>
+                            <div class="col-md-8"><span class="badge bg-light border text-dark">{{ expense.category.name }}</span></div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-md-4 fw-semibold">Amount:</div>
-                            <div class="col-md-8">৳{{ expense.amount|floatformat:2 }}</div>
+                        <div class="row mb-3 pb-2 border-bottom">
+                            <div class="col-md-4 text-muted fw-medium">Amount:</div>
+                            <div class="col-md-8 fw-bold fs-5 text-gradient">৳{{ expense.amount|floatformat:2 }}</div>
                         </div>
-                        <div class="row mb-2">
-                            <div class="col-md-4 fw-semibold">Description:</div>
-                            <div class="col-md-8">
-                                <div class="p-2 border rounded" style="max-height:200px; overflow-y:auto;">
-                                    {{ expense.description|default:"-" }}
+                        <div class="row">
+                            <div class="col-md-4 text-muted fw-medium mb-2 w-100">Description:</div>
+                            <div class="col-md-12">
+                                <div class="p-3 bg-light rounded text-muted" style="max-height:200px; overflow-y:auto; line-height: 1.6;">
+                                    {{ expense.description|default:"No additional notes." }}
                                 </div>
                             </div>
                         </div>
                       </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary fw-semibold" data-bs-dismiss="modal">Close</button>
+                      <div class="modal-footer border-0 pb-4 pe-4">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
                       </div>
                     </div>
                   </div>
@@ -110,11 +114,15 @@
 
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="text-center text-muted fw-semibold">No expenses found</td>
+                    <td colspan="6" class="text-center text-muted fw-semibold py-5">
+                        <i class="fa-solid fa-folder-open fs-2 mb-3 text-light-gray" style="color: #dee2e6;"></i><br>
+                        No expenses found. Time to add some!
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        </div>
     </div>
 </div>
 

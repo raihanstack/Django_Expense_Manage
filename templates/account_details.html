@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Account Details | Amertaka{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 rounded-4 mt-3 mb-5 hover-lift">
+            <div class="card-body p-5">
+                <div class="text-center mb-5">
+                    <div class="icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background-color: rgba(79, 70, 229, 0.1);">
+                        <i class="bi bi-person-fill fs-1 text-primary"></i>
+                    </div>
+                    <h3 class="card-title fw-bold text-dark text-gradient">User Profile</h3>
+                </div>
+
+                <div class="p-4 bg-light rounded-4 mb-4" style="border: 1px solid rgba(0,0,0,0.05);">
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted fw-medium"><i class="bi bi-person me-2"></i>Username:</div>
+                        <div class="col-7 fw-bold text-dark">{{ user.username }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted fw-medium"><i class="bi bi-envelope me-2"></i>Email:</div>
+                        <div class="col-7 fw-semibold text-dark">{{ user.email }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted fw-medium"><i class="bi bi-calendar3 me-2"></i>Date Joined:</div>
+                        <div class="col-7 fw-semibold text-dark">{{ user.date_joined|date:"F j, Y" }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 text-muted fw-medium"><i class="bi bi-wallet2 me-2"></i>Total Spend:</div>
+                        <div class="col-7 fw-bold text-primary">৳{{ total_expenses|floatformat:2 }}</div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-3">
+                    <a href="{% url 'expense_list' %}" class="btn btn-primary btn-lg rounded-pill hover-lift shadow-sm fw-bold">
+                        View My Expenses
+                    </a>
+                    
+                    <a href="{% url 'account_delete' %}" class="btn btn-outline-danger btn-lg rounded-pill hover-lift bg-white mt-4">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Delete Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

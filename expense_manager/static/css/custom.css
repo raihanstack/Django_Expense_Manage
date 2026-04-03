@@ -1,0 +1,131 @@
+/* d:\Django_Expense_Manage\expense_manager\static\css\custom.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-bg: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #1e293b;
+    --accent-color: #4f46e5;
+    --accent-hover: #4338ca;
+    --gradient-start: #4f46e5;
+    --gradient-end: #0ea5e9;
+    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 20px 35px -10px rgba(0, 0, 0, 0.08);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--primary-bg);
+    color: var(--text-main);
+}
+
+/* Base Card Styling */
+.card {
+    background-color: var(--card-bg);
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-soft);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* Button Upgrades */
+.btn {
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, var(--accent-hover), var(--gradient-end));
+    box-shadow: 0 8px 15px rgba(79, 70, 229, 0.3);
+}
+
+/* Navbar Glassmorphism */
+.navbar-glass {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.navbar-glass .nav-link,
+.navbar-glass .navbar-brand {
+    color: var(--text-main) !important;
+    font-weight: 600;
+}
+
+.navbar-glass .nav-link:hover {
+    color: var(--accent-color) !important;
+}
+
+/* Form Upgrades */
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(79, 70, 229, 0.2);
+}
+
+/* Tables */
+.table {
+    --bs-table-bg: transparent;
+}
+.table > :not(caption) > * > * {
+    padding: 1.2rem 1rem;
+    border-bottom-color: #f1f5f9;
+}
+.table > thead {
+    border-bottom: 2px solid #e2e8f0;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Status Badges */
+.badge {
+    padding: 0.5em 0.8em;
+    border-radius: 2rem;
+    font-weight: 500;
+}
+
+/* Interactive elements */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-4px);
+}
+
+/* Gradients for UI elements */
+.text-gradient {
+    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Footer styling */
+.footer-modern {
+    background-color: var(--card-bg);
+    border-top: 1px solid #e2e8f0;
+}

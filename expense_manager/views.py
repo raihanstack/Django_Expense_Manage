@@ -221,3 +221,23 @@ def expense_delete(request, expense_id):
     return render(request, 'expense_confirm_delete.html', {
         "expense": expense
     })
+
+@login_required(login_url='/login/')
+def account_details(request):
+    user = request.user
+    total_expenses = Expense.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
+
+    return render(request, 'account_details.html', {
+        'user': user,
+        'total_expenses': total_expenses
+    })
+
+@login_required(login_url='/login/')
+def account_delete(request):
+    if request.method == "POST":
+        user = request.user
+        user.delete()
+        messages.success(request, "Your account has been deleted successfully.")
+        return redirect('login')
+        
+    return render(request, 'account_confirm_delete.html')

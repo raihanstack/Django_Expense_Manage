@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Account | Amertaka{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center py-4">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow border-0 rounded-4 mt-3 mb-5">
+            <div class="card-body p-5 text-center">
+                <div class="icon-circle mx-auto mb-4 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; border-radius: 50%; background-color: rgba(220, 53, 69, 0.1);">
+                    <i class="fa-solid fa-triangle-exclamation fs-1 text-danger"></i>
+                </div>
+                <h3 class="card-title fw-bold text-dark mb-3">Delete Account?</h3>
+                
+                <div class="alert alert-danger rounded-4 text-start p-4 mb-4">
+                    <h5 class="alert-heading fw-bold mb-2"><i class="bi bi-exclamation-octagon me-2"></i>Warning</h5>
+                    <p class="mb-0 text-dark opacity-75">You are about to permanently delete your account (<strong>{{ request.user.username }}</strong>). This will completely erase all of your personal data, including all of your recorded expenses. This action cannot be undone!</p>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3">
+                    <form method="POST" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger px-4 py-2 fw-semibold rounded-pill hover-lift shadow-sm">
+                            Yes, I understand. Delete my account.
+                        </button>
+                    </form>
+                    <a href="{% url 'account_details' %}" class="btn btn-light border px-4 py-2 fw-semibold rounded-pill hover-lift transition-all">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
