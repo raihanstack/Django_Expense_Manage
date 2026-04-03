@@ -31,53 +31,53 @@
                         {% csrf_token %}
 
                         <!-- Username -->
-                        <div class="mb-3">
-                            <label for="username" class="form-label fw-semibold">Username</label>
+                        <div class="form-floating mb-3">
                             <input 
                                 type="text" 
-                                class="form-control form-control-lg" 
+                                class="form-control" 
                                 id="username" 
                                 name="username" 
-                                placeholder="Enter username" 
+                                placeholder="Username" 
                                 value="{{ request.POST.username }}" 
                                 required>
+                            <label for="username" class="text-muted"><i class="bi bi-person me-2"></i>Username</label>
                         </div>
 
                         <!-- Email -->
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">Email</label>
+                        <div class="form-floating mb-3">
                             <input 
                                 type="email" 
-                                class="form-control form-control-lg" 
+                                class="form-control" 
                                 id="email" 
                                 name="email" 
-                                placeholder="Enter email" 
+                                placeholder="name@example.com" 
                                 value="{{ request.POST.email }}" 
                                 required>
+                            <label for="email" class="text-muted"><i class="bi bi-envelope me-2"></i>Email address</label>
                         </div>
 
                         <!-- Password -->
-                        <div class="mb-3">
-                            <label for="password1" class="form-label fw-semibold">Password</label>
+                        <div class="form-floating mb-3">
                             <input 
                                 type="password" 
-                                class="form-control form-control-lg" 
+                                class="form-control" 
                                 id="password1" 
                                 name="password1" 
-                                placeholder="Enter password" 
+                                placeholder="Password" 
                                 required>
+                            <label for="password1" class="text-muted"><i class="bi bi-shield-lock me-2"></i>Password</label>
                         </div>
 
                         <!-- Confirm Password -->
-                        <div class="mb-3">
-                            <label for="password2" class="form-label fw-semibold">Confirm Password</label>
+                        <div class="form-floating mb-3">
                             <input 
                                 type="password" 
-                                class="form-control form-control-lg" 
+                                class="form-control" 
                                 id="password2" 
                                 name="password2" 
-                                placeholder="Confirm password" 
+                                placeholder="Confirm Password" 
                                 required>
+                            <label for="password2" class="text-muted"><i class="bi bi-shield-check me-2"></i>Confirm Password</label>
                         </div>
 
                         <!-- Submit Button -->

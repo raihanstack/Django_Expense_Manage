@@ -35,29 +35,29 @@
                         {% csrf_token %}
 
                         <!-- Email -->
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-semibold">Email</label>
+                        <div class="form-floating mb-3">
                             <input 
                                 type="email" 
-                                class="form-control form-control-lg" 
+                                class="form-control" 
                                 id="email" 
                                 name="email"
                                 value="{{ request.POST.email }}"
-                                placeholder="Enter your email"
+                                placeholder="name@example.com"
                                 required
                                 autofocus>
+                            <label for="email" class="text-muted"><i class="bi bi-envelope me-2"></i>Email address</label>
                         </div>
 
                         <!-- Password -->
-                        <div class="mb-3">
-                            <label for="password" class="form-label fw-semibold">Password</label>
+                        <div class="form-floating mb-3">
                             <input 
                                 type="password" 
-                                class="form-control form-control-lg" 
+                                class="form-control" 
                                 id="password" 
                                 name="password"
-                                placeholder="Enter password"
+                                placeholder="Password"
                                 required>
+                            <label for="password" class="text-muted"><i class="bi bi-shield-lock me-2"></i>Password</label>
                         </div>
 
                         <!-- Remember Me -->
