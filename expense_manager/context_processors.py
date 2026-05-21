@@ -5,10 +5,10 @@ def site_meta(request):
     """
     return {
         "site_meta": {
-            "site_title": "Amartaka",
-            "meta_description": "Track and manage your personal expenses effortlessly with Amartaka.",
-            "meta_keywords": "Amartaka, Expense Manager, Budget, Finance, Track Spending, Personal Finance",
-            "canonical_url": "https://amartaka.vercel.app/",
+            "site_title": "TakaSave",
+            "meta_description": "Track and manage your personal expenses effortlessly with TakaSave.",
+            "meta_keywords": "TakaSave, Expense Manager, Budget, Finance, Track Spending, Personal Finance",
+            "canonical_url": "https://takasave.vercel.app/",
             "og_image": "",  # optional – can be set per view if desired
         }
     }
