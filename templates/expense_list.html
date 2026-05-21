@@ -106,14 +106,14 @@
                 </tr>
 
                 <!-- Modal for full expense -->
-                <div class="modal fade" id="expenseModal{{ expense.id }}" tabindex="-1" aria-labelledby="expenseModalLabel{{ expense.id }}" aria-hidden="true">
-                  <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content rounded-4">
+                  <div class="modal fade" id="expenseModal{{ expense.id }}" tabindex="-1" aria-labelledby="expenseModalLabel{{ expense.id }}" aria-hidden="true" aria-live="polite" data-bs-backdrop="false" data-bs-keyboard="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable modal-fullscreen-sm-down">
+                      <div class="modal-content rounded-4 bg-white text-dark">
                       <div class="modal-header">
                         <h5 class="modal-title fw-bold" id="expenseModalLabel{{ expense.id }}">Expense Details</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                      <div class="modal-body p-4">
+                        <div class="modal-body p-4 bg-white text-dark">
                         <div class="row mb-3 pb-2 border-bottom">
                             <div class="col-md-4 text-muted fw-medium">Date:</div>
                             <div class="col-md-8 fw-semibold text-dark">{{ expense.date|date:"M d, Y" }}</div>
