@@ -67,6 +67,7 @@
                         <th class="ps-4 py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Date</th>
                         <th class="py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Title</th>
                         <th class="py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Category</th>
+                        <th class="py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Wallet</th>
                         <th class="py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Amount</th>
                         <th class="py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Note</th>
                         <th class="text-end pe-4 py-3 text-uppercase text-muted fw-bold" style="font-size: 0.75rem; letter-spacing: 1px;">Actions</th>
@@ -82,6 +83,13 @@
                                 <div class="rounded-circle me-2" style="width: 8px; height: 8px; background-color: #4f46e5;"></div>
                                 <span class="fw-bold" style="color: #4f46e5; font-size: 0.8rem;">{{ expense.category.name }}</span>
                             </div>
+                        </td>
+                        <td class="py-3 text-muted fw-semibold">
+                            {% if expense.wallet %}
+                                <span class="badge bg-light border text-secondary"><i class="bi bi-credit-card me-1"></i>{{ expense.wallet.name }}</span>
+                            {% else %}
+                                -
+                            {% endif %}
                         </td>
                         <td class="py-3 fw-bold fs-6" style="color: #0f172a;">৳ {{ expense.amount|floatformat:2 }}</td>
                     <td class="text-muted">
@@ -131,6 +139,16 @@
                             <div class="col-md-8"><span class="badge bg-light border text-dark">{{ expense.category.name }}</span></div>
                         </div>
                         <div class="row mb-3 pb-2 border-bottom">
+                            <div class="col-md-4 text-muted fw-medium">Wallet:</div>
+                            <div class="col-md-8">
+                                {% if expense.wallet %}
+                                    <span class="badge bg-light border text-dark"><i class="bi bi-credit-card me-1"></i>{{ expense.wallet.name }}</span>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="row mb-3 pb-2 border-bottom">
                             <div class="col-md-4 text-muted fw-medium">Amount:</div>
                             <div class="col-md-8 fw-bold fs-5 text-gradient">৳{{ expense.amount|floatformat:2 }}</div>
                         </div>
@@ -143,6 +161,7 @@
                             </div>
                         </div>
                       </div>
+
                       <div class="modal-footer border-0 pb-4 pe-4">
                         <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
                       </div>

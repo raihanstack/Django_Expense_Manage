@@ -25,4 +25,13 @@ urlpatterns = [
     # User Account
     path('account/', views.account_details, name='account_details'),
     path('account/delete/', views.account_delete, name='account_delete'),
+
+    # Wallet Management
+    path('wallets/', views.wallet_list, name='wallet_list'),
+    path('wallets/create/', views.wallet_create, name='wallet_create'),
+    path('wallets/update/<int:wallet_id>/', views.wallet_update, name='wallet_update'),
+    path('wallets/delete/<int:wallet_id>/', views.wallet_delete, name='wallet_delete'),
+    path('wallets/deposit/', views.wallet_deposit, name='wallet_deposit'),
+    path('wallets/transfer/', views.wallet_transfer, name='wallet_transfer'),
+
 ]

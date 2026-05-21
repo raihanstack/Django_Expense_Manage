@@ -47,6 +47,26 @@
                         <label for="category" class="text-muted"><i class="bi bi-folder2 me-2"></i>Category</label>
                     </div>
 
+                    <!-- Wallet -->
+                    <div class="form-floating mb-3">
+                        <select class="form-select" id="wallet" name="wallet" required>
+                            <option value="">Select Wallet</option>
+                            {% for item in wallets %}
+                                <option value="{{ item.id }}"
+                                    {% if expense and expense.wallet.id == item.id %}
+                                        selected
+                                    {% elif not expense and forloop.first %}
+                                        selected
+                                    {% endif %}
+                                >
+                                    {{ item.name }} (৳ {{ item.balance|floatformat:2 }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <label for="wallet" class="text-muted"><i class="bi bi-credit-card me-2"></i>Wallet</label>
+                    </div>
+
+
                     <!-- Date -->
                     <div class="form-floating mb-3">
                         <input type="date" class="form-control" id="date" name="date" 

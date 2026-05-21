@@ -24,12 +24,25 @@
 
     <!-- Summary Cards -->
     <div class="row g-4 mb-5">
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
+                <div class="card-body p-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Available Balance</h6>
+                        <h3 class="fw-bold text-dark mb-0">৳ {{ total_balance|floatformat:2 }}</h3>
+                    </div>
+                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(16, 185, 129, 0.1);">
+                        <i class="bi bi-cash-coin fs-3" style="color: #10b981;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Total Expenses</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ total_expenses }}</h3>
+                        <h3 class="fw-bold text-dark mb-0">৳ {{ total_expenses|floatformat:2 }}</h3>
                     </div>
                     <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(79, 70, 229, 0.1);">
                         <i class="bi bi-wallet2 fs-3" style="color: #4f46e5;"></i>
@@ -37,25 +50,25 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">This Month</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ month_expenses }}</h3>
+                        <h3 class="fw-bold text-dark mb-0">৳ {{ month_expenses|floatformat:2 }}</h3>
                     </div>
-                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(16, 185, 129, 0.1);">
-                        <i class="bi bi-calendar-event fs-3" style="color: #10b981;"></i>
+                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(14, 165, 233, 0.1);">
+                        <i class="bi bi-calendar-event fs-3" style="color: #0ea5e9;"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 col-md-4">
+        <div class="col-12 col-sm-6 col-md-3">
             <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
                 <div class="card-body p-4 d-flex align-items-center justify-content-between">
                     <div>
                         <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Last 7 Days</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ week_expenses }}</h3>
+                        <h3 class="fw-bold text-dark mb-0">৳ {{ week_expenses|floatformat:2 }}</h3>
                     </div>
                     <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(245, 158, 11, 0.1);">
                         <i class="bi bi-clock-history fs-3" style="color: #f59e0b;"></i>
@@ -65,10 +78,10 @@
         </div>
     </div>
 
-    <!-- Category Chart and Table -->
+    <!-- Category Chart, Table and Wallets -->
     <div class="row g-4">
         <!-- Doughnut Chart -->
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-4">
             <div class="card shadow-sm border-0 h-100 rounded-4">
                 <div class="card-header bg-white border-0 pt-4 pb-0">
                     <h5 class="mb-0 fw-bold">Expenses by Category</h5>
@@ -80,17 +93,17 @@
         </div>
 
         <!-- Category Table -->
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-lg-4">
             <div class="card shadow-sm border-0 h-100 rounded-4">
                 <div class="card-header bg-white border-0 pt-4 pb-0">
                     <h5 class="mb-0 fw-bold">Category Breakdown</h5>
                 </div>
                 <div class="card-body table-responsive">
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle mb-0">
                         <thead class="table-light">
                             <tr>
                                 <th>Category</th>
-                                <th>Total Amount</th>
+                                <th>Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,19 +111,53 @@
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="rounded-circle me-3" style="width: 12px; height: 12px; background-color: #4f46e5;"></div>
-                                        <span class="fw-semibold text-dark">{{ item.category__name }}</span>
+                                        <div class="rounded-circle me-2" style="width: 10px; height: 10px; background-color: #4f46e5;"></div>
+                                        <span class="fw-semibold text-dark" style="font-size: 0.85rem;">{{ item.category__name }}</span>
                                     </div>
                                 </td>
-                                <td class="fw-bold text-secondary">৳ {{ item.total }}</td>
+                                <td class="fw-bold text-secondary" style="font-size: 0.85rem;">৳ {{ item.total|floatformat:2 }}</td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="2" class="text-center">No expenses found</td>
+                                <td colspan="2" class="text-center text-muted">No expenses found</td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallets Card -->
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">My Wallets</h5>
+                    <a href="{% url 'wallet_list' %}" class="btn btn-sm btn-light rounded-pill px-3 fw-bold" style="font-size: 0.8rem;">
+                        Manage
+                    </a>
+                </div>
+                <div class="card-body" style="max-height: 320px; overflow-y: auto;">
+                    <div class="d-flex flex-column gap-3">
+                        {% for w in wallets %}
+                            <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background-color: #f8fafc; border: 1px solid #f1f5f9;">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; border-radius: 8px; background-color: rgba(79, 70, 229, 0.1);">
+                                        <i class="bi bi-wallet2 text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">{{ w.name }}</h6>
+                                    </div>
+                                </div>
+                                <span class="fw-extrabold text-dark" style="font-size: 0.95rem;">৳ {{ w.balance|floatformat:2 }}</span>
+                            </div>
+                        {% empty %}
+                            <div class="text-center py-4 text-muted">
+                                <p class="mb-2">No wallets created yet.</p>
+                                <a href="{% url 'wallet_list' %}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">Add Wallet</a>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
