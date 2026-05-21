@@ -1,0 +1,78 @@
+/* Custom CSS for Amertaka – Mobile‑first, premium look */
+
+/* Global smooth scroll and font smoothing */
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure container padding on very small screens */
+@media (max-width: 576px) {
+    .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+    }
+}
+
+/* Card hover lift effect – subtle elevation */
+.hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* Icon sizing for consistency */
+.icon-circle i {
+    font-size: 2rem;
+}
+
+/* Ensure Bootstrap Icons inherit the intended color */
+.bi {
+    vertical-align: -0.125em;
+}
+
+/* Button focus outline – better accessibility */
+button:focus,
+a.btn:focus {
+    outline: 2px solid var(--bs-primary);
+    outline-offset: 2px;
+}
+
+/* Mobile‑optimized modal full‑width */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 95%;
+        margin: 1rem;
+    }
+}
+
+/* Reduce extra spacing on card actions for tiny screens */
+@media (max-width: 400px) {
+    .card-body .d-flex.gap-2 {
+        gap: 0.5rem;
+    }
+    .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+    }
+}
+
+/* Custom gradient background for empty states */
+.empty-state {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+}
+
+/* Fade‑in animation for pages */
+.page-fade-in {
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+}
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
