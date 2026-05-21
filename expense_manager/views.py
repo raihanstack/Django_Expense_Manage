@@ -157,7 +157,11 @@ def home(request):
 @login_required(login_url='/login/')
 def expense_list(request):
     result = Expense.objects.filter(user=request.user).select_related('category').order_by('-date')
-    return render(request, 'expense_list.html', {"result": result})
+    total_expenses = result.aggregate(total=Sum('amount'))['total'] or 0
+    return render(request, 'expense_list.html', {
+        "result": result,
+        "total_expenses": total_expenses
+    })
 
 @login_required(login_url='/login/')
 def expense_create(request):
