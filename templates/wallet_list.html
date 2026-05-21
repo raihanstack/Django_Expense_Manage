@@ -3,7 +3,7 @@
 {% block title %}Wallets | Amertaka{% endblock %}
 
 {% block content %}
-<div class="container my-4 page-fade-in">
+<div class="container my-4">
     <!-- Header Section -->
     <div class="row mb-5 align-items-center">
         <div class="col-12 col-md-6 mb-3 mb-md-0">
@@ -122,60 +122,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Edit Wallet Modal -->
-            <div class="modal fade" id="editWalletModal{{ wallet.id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content rounded-4 border-0 shadow-lg">
-                        <div class="modal-header border-0 pb-0">
-                            <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i>Rename Wallet</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{% url 'wallet_update' wallet.id %}">
-                            {% csrf_token %}
-                            <div class="modal-body p-4">
-                                <div class="form-floating mb-3">
-                                    <input type="text" class="form-control rounded-3" id="walletName{{ wallet.id }}" name="name" placeholder="Wallet Name" value="{{ wallet.name }}" required>
-                                    <label for="walletName{{ wallet.id }}">Wallet Name</label>
-                                </div>
-                                <div class="form-floating">
-                                    <input type="number" step="0.01" class="form-control rounded-3" id="walletBalance{{ wallet.id }}" name="balance" placeholder="Adjust Balance" value="{{ wallet.balance }}">
-                                    <label for="walletBalance{{ wallet.id }}">Adjust Balance (Optional)</label>
-                                </div>
-                            </div>
-                            <div class="modal-footer border-0 pt-0">
-                                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Delete Wallet Modal -->
-            <div class="modal fade" id="deleteWalletModal{{ wallet.id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content rounded-4 border-0 shadow-lg">
-                        <div class="modal-header border-0 pb-0">
-                            <h5 class="modal-title fw-bold text-dark"><i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>Delete Wallet</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <form method="POST" action="{% url 'wallet_delete' wallet.id %}">
-                            {% csrf_token %}
-                            <div class="modal-body p-4 text-center">
-                                <p class="text-muted">Are you sure you want to delete the wallet <strong>"{{ wallet.name }}"</strong>?</p>
-                                <div class="alert alert-warning rounded-3 text-start mb-0">
-                                    <i class="bi bi-info-circle-fill me-2"></i> All transaction expenses associated with this wallet will be detached (set to None), but will <strong>not</strong> be deleted.
-                                </div>
-                            </div>
-                            <div class="modal-footer border-0 pt-0 justify-content-center">
-                                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
-                                <button type="submit" class="btn btn-danger rounded-pill px-4">Delete Wallet</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
         {% empty %}
             <div class="col-12">
                 <div class="p-5 text-center bg-white rounded-4 shadow-sm border" style="border-style: dashed !important;">
@@ -190,10 +136,69 @@
         {% endfor %}
     </div>
 </div>
+{% endblock %}
 
+{% block modals %}
 <!-- =========================
-     Action Modals
+     Action Modals (Rendered outside transformed parent to prevent Bootstrap backdrop overlay bug)
      ========================= -->
+
+<!-- Edit & Delete Modals for each wallet -->
+{% for wallet in wallets %}
+    <!-- Edit Wallet Modal -->
+    <div class="modal fade" id="editWalletModal{{ wallet.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i>Rename Wallet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'wallet_update' wallet.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body p-4">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control rounded-3" id="walletName{{ wallet.id }}" name="name" placeholder="Wallet Name" value="{{ wallet.name }}" required>
+                            <label for="walletName{{ wallet.id }}">Wallet Name</label>
+                        </div>
+                        <div class="form-floating">
+                            <input type="number" step="0.01" class="form-control rounded-3" id="walletBalance{{ wallet.id }}" name="balance" placeholder="Adjust Balance" value="{{ wallet.balance }}">
+                            <label for="walletBalance{{ wallet.id }}">Adjust Balance (Optional)</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Wallet Modal -->
+    <div class="modal fade" id="deleteWalletModal{{ wallet.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow-lg">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold text-dark"><i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>Delete Wallet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'wallet_delete' wallet.id %}">
+                    {% csrf_token %}
+                    <div class="modal-body p-4 text-center">
+                        <p class="text-muted">Are you sure you want to delete the wallet <strong>"{{ wallet.name }}"</strong>?</p>
+                        <div class="alert alert-warning rounded-3 text-start mb-0">
+                            <i class="bi bi-info-circle-fill me-2"></i> All transaction expenses associated with this wallet will be detached (set to None), but will <strong>not</strong> be deleted.
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 justify-content-center">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger rounded-pill px-4">Delete Wallet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endfor %}
 
 <!-- Create Wallet Modal -->
 <div class="modal fade" id="createWalletModal" tabindex="-1" aria-hidden="true">
