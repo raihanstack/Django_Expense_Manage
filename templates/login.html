@@ -16,19 +16,6 @@
                         <p class="text-muted small">Enter your credentials to access your account.</p>
                     </div>
 
-                    <!-- Messages -->
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-dismissible fade show rounded-3 
-                                {% if message.tags == 'error' %}alert-danger
-                                {% elif message.tags == 'success' %}alert-success
-                                {% else %}alert-primary{% endif %}" 
-                                role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
 
                     <!-- Login Form -->
                     <form method="POST" action="{% url 'login' %}" novalidate>

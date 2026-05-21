@@ -23,25 +23,6 @@
         </div>
     </div>
 
-    <!-- Alert Messages -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="alert alert-dismissible fade show rounded-4 shadow-sm {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-primary{% endif %}" role="alert">
-                <div class="d-flex align-items-center">
-                    {% if message.tags == 'success' %}
-                        <i class="bi bi-check-circle-fill fs-5 me-2"></i>
-                    {% elif message.tags == 'error' %}
-                        <i class="bi bi-exclamation-triangle-fill fs-5 me-2"></i>
-                    {% else %}
-                        <i class="bi bi-info-circle-fill fs-5 me-2"></i>
-                    {% endif %}
-                    <div>{{ message }}</div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-
     <!-- Summary Cards -->
     <div class="row g-4 mb-5">
         <div class="col-12 col-md-6">
@@ -102,10 +83,10 @@
 
                     <!-- Delete and Edit Buttons -->
                     <div class="position-absolute d-flex gap-2" style="top: 20px; right: 20px; z-index: 10;">
-                        <button class="btn btn-sm btn-light bg-white bg-opacity-20 border-0 rounded-circle text-white hover-lift d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" data-bs-toggle="modal" data-bs-target="#editWalletModal{{ wallet.id }}" title="Edit">
+                        <button class="btn btn-sm rounded-circle text-white hover-lift d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border: none;" data-bs-toggle="modal" data-bs-target="#editWalletModal{{ wallet.id }}" title="Edit">
                             <i class="bi bi-pencil-fill" style="font-size: 0.85rem;"></i>
                         </button>
-                        <button class="btn btn-sm btn-light bg-white bg-opacity-20 border-0 rounded-circle text-white hover-lift d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" data-bs-toggle="modal" data-bs-target="#deleteWalletModal{{ wallet.id }}" title="Delete">
+                        <button class="btn btn-sm rounded-circle text-white hover-lift d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; background: rgba(255, 255, 255, 0.2); border: none;" data-bs-toggle="modal" data-bs-target="#deleteWalletModal{{ wallet.id }}" title="Delete">
                             <i class="bi bi-trash-fill" style="font-size: 0.85rem;"></i>
                         </button>
                     </div>

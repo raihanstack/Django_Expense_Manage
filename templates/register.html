@@ -16,15 +16,6 @@
                         <p class="text-muted small">Join us to start managing your expenses.</p>
                     </div>
 
-                    <!-- Messages -->
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-dismissible fade show rounded-3 {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
 
                     <!-- Registration Form -->
                     <form method="POST" action="{% url 'register' %}" novalidate>

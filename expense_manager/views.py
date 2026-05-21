@@ -1,4 +1,5 @@
-from django.shortcuts import render, get_object_or_404, redirect 
+from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponseNotFound 
 from .models import Expense, Category, Wallet
 from django.contrib import messages 
 from django.contrib.auth.models import User 
@@ -14,10 +15,12 @@ from django.db.models import Sum
 from django.db import transaction
 from decimal import Decimal
 import decimal
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.utils import timezone
+from django.conf import settings
 
-
+# Maximum allowed expense amount
+MAX_EXPENSE_AMOUNT = Decimal('1000000')
 
 def user_login(request):
     if request.user.is_authenticated:
@@ -29,12 +32,9 @@ def user_login(request):
 
         user = None
         if email:
-            try:
-                user_obj = User.objects.get(email=email) 
-            
+            user_obj = User.objects.filter(email=email).first() 
+            if user_obj:
                 user = authenticate(request, username=user_obj.username, password=password)
-            except User.DoesNotExist:
-                user = None
 
         if user is not None:
             login(request, user)
@@ -56,46 +56,73 @@ def user_register(request):
         return redirect("home")
 
     if request.method == "POST":
-        username = request.POST.get("username")
-        email = request.POST.get("email")
-        password1 = request.POST.get("password1")
-        password2 = request.POST.get("password2")
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        password1 = request.POST.get("password1", "")
+        password2 = request.POST.get("password2", "")
 
-        if password1 != password2:
-            messages.error(request, "Passwords do not match!")
+        errors = False
+
+        if not username:
+            messages.error(request, "Username is required!")
+            errors = True
+        elif User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists!")
+            errors = True
+
+        if not email:
+            messages.error(request, "Email is required!")
+            errors = True
         elif User.objects.filter(email=email).exists():
             messages.error(request, "Email already registered!")
-        else:
-            User.objects.create_user(username=username, email=email, password=password1)
-            messages.success(request, "Account created successfully!")
-            return redirect("login")
+            errors = True
+
+        if not password1:
+            messages.error(request, "Password is required!")
+            errors = True
+        elif password1 != password2:
+            messages.error(request, "Passwords do not match!")
+            errors = True
+
+        if not errors:
+            try:
+                User.objects.create_user(username=username, email=email, password=password1)
+                messages.success(request, "Account created successfully! Please login.")
+                return redirect("login")
+            except Exception as e:
+                messages.error(request, f"Failed to create account: {str(e)}")
 
     return render(request, "register.html")
 
 
 def password_reset_request(request):
     if request.method == "POST":
-        email = request.POST.get("email")
+        email = request.POST.get("email", "").strip()
         user = User.objects.filter(email=email).first()
 
         if user:
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             domain = get_current_site(request).domain
-            reset_link = f'https://{domain}/password-reset/confirm/{uid}/{token}/'
+            scheme = 'https' if request.is_secure() else 'http'
+            reset_link = f'{scheme}://{domain}/password-reset/confirm/{uid}/{token}/'
 
-            message = render_to_string("password_reset_email.html", {"reset_link": reset_link})
+            message = render_to_string("password_reset_email.html", {"reset_link": reset_link, "user": user})
 
-            send_mail(
-                subject="Password Reset",
-                message=message,
-                from_email='raihan.invite@gmail.com',
-                recipient_list=[email],
-                fail_silently=False,
-            )
-
-            messages.success(request, f"Password Reset Link has been sent to {email}")
-            return redirect("password_reset_done")
+            try:
+                from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+                send_mail(
+                    subject="Password Reset",
+                    message=message,
+                    from_email=from_email,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                messages.success(request, f"Password Reset Link has been sent to {email}")
+                return redirect("password_reset_done")
+            except Exception as e:
+                print(f"Error sending password reset email: {e}")
+                messages.error(request, "Failed to send password reset email. Please try again later or verify email settings.")
         else:
             messages.error(request, "User not found!")
 
@@ -144,6 +171,17 @@ def home(request):
     start_week = today - timedelta(days=7)
     start_month = today.replace(day=1)
 
+    # Ensure categories exist
+    if not Category.objects.exists():
+        for cat_name in ["Food", "Travel", "Rent", "Utilities", "Entertainment", "Others"]:
+            Category.objects.get_or_create(name=cat_name)
+
+    # Ensure default 'Cash' wallet exists
+    wallets = Wallet.objects.filter(user=user)
+    if not wallets.exists():
+        Wallet.objects.create(user=user, name="Cash", balance=Decimal('0.00'))
+        wallets = Wallet.objects.filter(user=user)
+
     total_expenses = Expense.objects.filter(user=user).aggregate(total=Sum('amount'))['total'] or 0
     month_expenses = Expense.objects.filter(user=user, date__gte=start_month).aggregate(total=Sum('amount'))['total'] or 0
     week_expenses = Expense.objects.filter(user=user, date__gte=start_week).aggregate(total=Sum('amount'))['total'] or 0
@@ -151,7 +189,7 @@ def home(request):
     category_data = Expense.objects.filter(user=user).values('category__name').annotate(total=Sum('amount')).order_by('-total')
 
     # Wallet summary
-    wallets = Wallet.objects.filter(user=user).order_by('name')
+    wallets = wallets.order_by('name')
     total_balance = wallets.aggregate(total=Sum('balance'))['total'] or 0
 
     context = {
@@ -175,29 +213,96 @@ def expense_list(request):
 
 @login_required(login_url='/login/')
 def expense_create(request):
-    categories = Category.objects.all()
+    # Ensure default categories exist
+    if not Category.objects.exists():
+        for cat_name in ["Food", "Travel", "Rent", "Utilities", "Entertainment", "Others"]:
+            Category.objects.get_or_create(name=cat_name)
+
+    categories = Category.objects.all().order_by('name')
+    
     # Check if user has wallets. If not, auto-create a default 'Cash' wallet.
     wallets = Wallet.objects.filter(user=request.user)
     if not wallets.exists():
-        Wallet.objects.create(user=request.user, name="Cash", balance=0.00)
+        Wallet.objects.create(user=request.user, name="Cash", balance=Decimal('0.00'))
         wallets = Wallet.objects.filter(user=request.user)
         messages.info(request, "Default 'Cash' wallet has been automatically created for you.")
 
+    today_date = timezone.now().date().strftime('%Y-%m-%d')
+
     if request.method == "POST":
-        title = request.POST.get("title")
-        amount = request.POST.get("amount")
+        title = request.POST.get("title", "").strip()
+        amount = request.POST.get("amount", "").strip()
         category_id = request.POST.get("category")
         wallet_id = request.POST.get("wallet")
-        date = request.POST.get("date")
-        description = request.POST.get("description")
+        date_str = request.POST.get("date", "").strip()
+        description = request.POST.get("description", "").strip()
 
-        category = get_object_or_404(Category, id=category_id)
-        wallet = get_object_or_404(Wallet, user=request.user, id=wallet_id) if wallet_id else None
-        
+        errors = False
+
+        if not title:
+            messages.error(request, "Title is required!")
+            errors = True
+
         try:
             amount_dec = Decimal(amount)
+            if amount_dec <= 0:
+                messages.error(request, "Amount must be greater than zero.")
+                errors = True
+            elif amount_dec > MAX_EXPENSE_AMOUNT:
+                messages.error(request, f"Amount exceeds the allowed limit of {MAX_EXPENSE_AMOUNT}.")
+                errors = True
         except (ValueError, TypeError, decimal.InvalidOperation):
+            messages.error(request, "Please enter a valid amount.")
+            errors = True
             amount_dec = Decimal('0.00')
+
+        category = None
+        if not category_id:
+            messages.error(request, "Category is required!")
+            errors = True
+        else:
+            try:
+                category = Category.objects.get(id=category_id)
+            except (Category.DoesNotExist, ValueError):
+                messages.error(request, "Selected category does not exist.")
+                errors = True
+
+        wallet = None
+        if wallet_id:
+            try:
+                wallet = Wallet.objects.get(user=request.user, id=wallet_id)
+            except (Wallet.DoesNotExist, ValueError):
+                messages.error(request, "Selected wallet does not exist.")
+                errors = True
+
+        parsed_date = timezone.now().date()
+        if date_str:
+            try:
+                parsed_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
+                errors = True
+
+        if wallet and not errors:
+            if wallet.balance < amount_dec:
+                messages.error(request, f"Insufficient balance in '{wallet.name}'. Cannot create expense!")
+                errors = True
+
+        if errors:
+            dummy_expense = Expense(
+                title=title,
+                amount=amount_dec,
+                category=category,
+                wallet=wallet,
+                date=parsed_date,
+                description=description
+            )
+            return render(request, 'expense_form.html', {
+                "expense": dummy_expense,
+                "categories": categories,
+                "wallets": wallets,
+                "today_date": today_date,
+            })
 
         with transaction.atomic():
             Expense.objects.create(
@@ -206,7 +311,7 @@ def expense_create(request):
                 amount=amount_dec,
                 category=category,
                 wallet=wallet,
-                date=date,
+                date=parsed_date,
                 description=description
             )
             if wallet:
@@ -218,44 +323,110 @@ def expense_create(request):
 
     return render(request, 'expense_form.html', {
         "categories": categories,
-        "wallets": wallets
+        "wallets": wallets,
+        "today_date": today_date,
     })
 
 
 @login_required(login_url='/login/')
 def expense_update(request, expense_id):
     expense = get_object_or_404(Expense, user=request.user, id=expense_id)
-    categories = Category.objects.all()
+    categories = Category.objects.all().order_by('name')
     wallets = Wallet.objects.filter(user=request.user)
     if not wallets.exists():
-        Wallet.objects.create(user=request.user, name="Cash", balance=0.00)
+        Wallet.objects.create(user=request.user, name="Cash", balance=Decimal('0.00'))
         wallets = Wallet.objects.filter(user=request.user)
 
     if request.method == "POST":
         old_wallet = expense.wallet
         old_amount = expense.amount
 
-        title = request.POST.get("title")
-        amount = request.POST.get("amount")
+        title = request.POST.get("title", "").strip()
+        amount = request.POST.get("amount", "").strip()
         category_id = request.POST.get("category")
         wallet_id = request.POST.get("wallet")
-        date = request.POST.get("date")
-        description = request.POST.get("description")
+        date_str = request.POST.get("date", "").strip()
+        description = request.POST.get("description", "").strip()
 
-        category = get_object_or_404(Category, id=category_id)
-        new_wallet = get_object_or_404(Wallet, user=request.user, id=wallet_id) if wallet_id else None
+        errors = False
+
+        if not title:
+            messages.error(request, "Title is required!")
+            errors = True
 
         try:
             new_amount = Decimal(amount)
+            if new_amount <= 0:
+                messages.error(request, "Amount must be greater than zero.")
+                errors = True
+            elif new_amount > MAX_EXPENSE_AMOUNT:
+                messages.error(request, f"Amount exceeds the allowed limit of {MAX_EXPENSE_AMOUNT}.")
+                errors = True
         except (ValueError, TypeError, decimal.InvalidOperation):
+            messages.error(request, "Please enter a valid amount.")
+            errors = True
             new_amount = Decimal('0.00')
+
+        category = None
+        if not category_id:
+            messages.error(request, "Category is required!")
+            errors = True
+        else:
+            try:
+                category = Category.objects.get(id=category_id)
+            except (Category.DoesNotExist, ValueError):
+                messages.error(request, "Selected category does not exist.")
+                errors = True
+
+        new_wallet = None
+        if wallet_id:
+            try:
+                new_wallet = Wallet.objects.get(user=request.user, id=wallet_id)
+            except (Wallet.DoesNotExist, ValueError):
+                messages.error(request, "Selected wallet does not exist.")
+                errors = True
+
+        parsed_date = expense.date
+        if date_str:
+            try:
+                parsed_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                messages.error(request, "Invalid date format. Use YYYY-MM-DD.")
+                errors = True
+
+        if not errors:
+            # Validate wallet balances before updating expense
+            if new_wallet:
+                if old_wallet == new_wallet:
+                    prospective_balance = new_wallet.balance + old_amount - new_amount
+                    if prospective_balance < 0:
+                        messages.error(request, f"Insufficient balance in '{new_wallet.name}' for this update.")
+                        errors = True
+                else:
+                    if new_wallet.balance < new_amount:
+                        messages.error(request, f"Insufficient balance in '{new_wallet.name}' for this update.")
+                        errors = True
+
+        if errors:
+            # Preserving user inputs on the existing object
+            expense.title = title
+            expense.amount = new_amount
+            expense.category = category
+            expense.wallet = new_wallet
+            expense.date = parsed_date
+            expense.description = description
+            return render(request, 'expense_form.html', {
+                "expense": expense,
+                "categories": categories,
+                "wallets": wallets,
+            })
 
         with transaction.atomic():
             expense.title = title
             expense.amount = new_amount
             expense.category = category
             expense.wallet = new_wallet
-            expense.date = date
+            expense.date = parsed_date
             expense.description = description
             expense.save()
 
@@ -338,13 +509,16 @@ def wallet_list(request):
 def wallet_create(request):
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
-        balance = request.POST.get("balance", "0.00")
+        balance = request.POST.get("balance", "0.00").strip()
         if not name:
             messages.error(request, "Wallet name is required!")
             return redirect('wallet_list')
         
         try:
             balance_dec = Decimal(balance)
+            if balance_dec < 0:
+                messages.error(request, "Initial balance cannot be negative!")
+                return redirect('wallet_list')
         except (ValueError, TypeError, decimal.InvalidOperation):
             balance_dec = Decimal('0.00')
 
@@ -361,7 +535,7 @@ def wallet_update(request, wallet_id):
     wallet = get_object_or_404(Wallet, user=request.user, id=wallet_id)
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
-        balance_str = request.POST.get("balance", "")
+        balance_str = request.POST.get("balance", "").strip()
         
         if not name:
             messages.error(request, "Wallet name is required!")
@@ -374,9 +548,14 @@ def wallet_update(request, wallet_id):
         wallet.name = name
         if balance_str != "":
             try:
-                wallet.balance = Decimal(balance_str)
+                balance_dec = Decimal(balance_str)
+                if balance_dec < 0:
+                    messages.error(request, "Wallet balance cannot be negative!")
+                    return redirect('wallet_list')
+                wallet.balance = balance_dec
             except (ValueError, TypeError, decimal.InvalidOperation):
-                pass
+                messages.error(request, "Invalid balance amount entered!")
+                return redirect('wallet_list')
         wallet.save()
         messages.success(request, f"Wallet '{name}' updated successfully!")
     return redirect('wallet_list')
@@ -394,8 +573,13 @@ def wallet_delete(request, wallet_id):
 def wallet_deposit(request):
     if request.method == "POST":
         wallet_id = request.POST.get("wallet")
-        amount = request.POST.get("amount")
-        wallet = get_object_or_404(Wallet, user=request.user, id=wallet_id)
+        amount = request.POST.get("amount", "").strip()
+        
+        try:
+            wallet = Wallet.objects.get(user=request.user, id=wallet_id)
+        except (Wallet.DoesNotExist, ValueError):
+            messages.error(request, "Invalid wallet selected.")
+            return redirect('wallet_list')
         
         try:
             amount_dec = Decimal(amount)
@@ -417,14 +601,18 @@ def wallet_transfer(request):
     if request.method == "POST":
         from_wallet_id = request.POST.get("from_wallet")
         to_wallet_id = request.POST.get("to_wallet")
-        amount = request.POST.get("amount")
+        amount = request.POST.get("amount", "").strip()
         
         if from_wallet_id == to_wallet_id:
             messages.error(request, "Cannot transfer to the same wallet!")
             return redirect('wallet_list')
             
-        from_wallet = get_object_or_404(Wallet, user=request.user, id=from_wallet_id)
-        to_wallet = get_object_or_404(Wallet, user=request.user, id=to_wallet_id)
+        try:
+            from_wallet = Wallet.objects.get(user=request.user, id=from_wallet_id)
+            to_wallet = Wallet.objects.get(user=request.user, id=to_wallet_id)
+        except (Wallet.DoesNotExist, ValueError):
+            messages.error(request, "Invalid wallet selected.")
+            return redirect('wallet_list')
         
         try:
             amount_dec = Decimal(amount)
@@ -445,4 +633,8 @@ def wallet_transfer(request):
             to_wallet.save()
             
         messages.success(request, f"Transferred ৳ {amount_dec:.2f} from '{from_wallet.name}' to '{to_wallet.name}'!")
-    return redirect('wallet_list')
+    return redirect('wallet_list')
+
+
+def handler404(request, exception):
+    return render(request, '404.html', status=404)
