@@ -5,10 +5,10 @@ def site_meta(request):
     """
     return {
         "site_meta": {
-            "site_title": "Amertaka",
-            "meta_description": "Track and manage your personal expenses effortlessly with Amertaka.",
-            "meta_keywords": "Amertaka, Expense Manager, Budget, Finance, Track Spending, Personal Finance",
-            "canonical_url": "https://amertaka.vercel.app/",
+            "site_title": "Amartaka",
+            "meta_description": "Track and manage your personal expenses effortlessly with Amartaka.",
+            "meta_keywords": "Amartaka, Expense Manager, Budget, Finance, Track Spending, Personal Finance",
+            "canonical_url": "https://amartaka.vercel.app/",
             "og_image": "",  # optional – can be set per view if desired
         }
     }
