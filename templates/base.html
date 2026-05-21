@@ -6,11 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- SEO Meta Tags -->
-    <title>{% block title %}Amertaka{% endblock %}</title>
-    <meta name="description" content="{% block meta_description %}Track and manage your personal expenses effortlessly with Amertaka.{% endblock %}">
-    <meta name="keywords" content="Amertaka, Expense Manager, Budget, Finance, Track Spending, Personal Finance">
-    <meta name="author" content="Amertaka">
-    <meta name="robots" content="index, follow">
+    <title>{% block title %}{{ site_meta.site_title }}{% endblock %}</title>
+    <meta name="description" content="{{ site_meta.meta_description }}">
+    <meta name="keywords" content="{{ site_meta.meta_keywords }}">
+    <link rel="canonical" href="{{ site_meta.canonical_url }}">
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{ site_meta.site_title }}">
+    <meta property="og:description" content="{{ site_meta.meta_description }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ site_meta.canonical_url }}">
+    <meta property="og:image" content="{{ site_meta.og_image|default:'' }}">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ site_meta.site_title }}">
+    <meta name="twitter:description" content="{{ site_meta.meta_description }}">
+    <meta name="twitter:image" content="{{ site_meta.og_image|default:'' }}">
+
 
     <!-- Open Graph / Social -->
     <meta property="og:title" content="Amertaka">
@@ -19,7 +30,7 @@
     <meta property="og:url" content="https://amertaka.vercel.app">
     <meta property="og:image" content="">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Font Awesome removed; using Bootstrap Icons -->
     <!-- Favicon -->
     <link rel="icon" href="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png" type="image/x-icon">
 
@@ -147,9 +158,6 @@
 
             <!-- Right Side (Social Icons) -->
             <div class="col-md-6 text-md-end">
-                <a href="https://facebook.com/raihanstack" target="_blank" class="text-primary me-3 fs-5">
-                    <i class="bi bi-facebook"></i>
-                </a>
                 <a href="https://github.com/raihanstack" target="_blank" class="text-dark me-3 fs-5">
                     <i class="bi bi-github"></i>
                 </a>
