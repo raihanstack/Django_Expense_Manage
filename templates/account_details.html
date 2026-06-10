@@ -40,10 +40,12 @@
                         View My Expenses
                     </a>
 
-                    <a href="{% url 'account_delete' %}"
-                        class="btn btn-outline-danger btn-lg rounded-pill hover-lift bg-white text-dark mt-4">
-                        <i class="bi bi-exclamation-triangle me-2"></i>Delete Account
-                    </a>
+                <a href="{% url 'profile_edit' %}" class="btn btn-outline-secondary btn-lg rounded-pill hover-lift bg-white text-dark mt-4">
+                    <i class="bi bi-pencil me-2"></i>Edit Profile
+                </a>
+                <a href="{% url 'account_delete' %}" class="btn btn-outline-danger btn-lg rounded-pill hover-lift bg-white text-dark mt-4">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Delete Account
+                </a>
                 </div>
             </div>
         </div>

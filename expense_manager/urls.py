@@ -27,6 +27,10 @@ urlpatterns = [
 
     # User Account
     path('account/', views.account_details, name='account_details'),
+    # Profile edit flow
+    path('profile/edit/', views.profile_edit, name='profile_edit'),
+    path('profile/edit/verify/', views.profile_edit_verify, name='profile_edit_verify'),
+    path('profile/edit/resend/', views.profile_edit_resend, name='profile_edit_resend'),
     path('account/delete/', views.account_delete, name='account_delete'),
     path('account/delete/resend/', views.account_delete_resend, name='account_delete_resend'),
 

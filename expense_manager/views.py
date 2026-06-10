@@ -597,14 +597,161 @@ def account_details(request):
     })
 
 @login_required(login_url='/login/')
-def account_delete(request):
-    user = request.user
 
+# =========================
+# Profile Edit Views
+# =========================
+
+@login_required(login_url='/login/')
+def profile_edit(request):
+    """Render profile edit form. Handles email change with OTP verification."""
+    user = request.user
+    if request.method == "POST":
+        new_username = request.POST.get('username', '').strip()
+        new_email = request.POST.get('email', '').strip()
+        new_password1 = request.POST.get('password1', '')
+        new_password2 = request.POST.get('password2', '')
+        errors = False
+
+        # Username validation
+        if not new_username:
+            messages.error(request, "Username is required!")
+            errors = True
+        elif new_username != user.username and User.objects.filter(username=new_username).exists():
+            messages.error(request, "Username already taken!")
+            errors = True
+
+        # Password validation (optional)
+        if new_password1 or new_password2:
+            if new_password1 != new_password2:
+                messages.error(request, "Passwords do not match!")
+                errors = True
+            elif len(new_password1) < 8:
+                messages.error(request, "Password must be at least 8 characters.")
+                errors = True
+
+        # Email change requires OTP
+        email_changed = new_email and new_email != user.email
+        if email_changed:
+            if User.objects.filter(email=new_email).exists():
+                messages.error(request, "Email already in use!")
+                errors = True
+            if not errors:
+                # Store pending changes in session
+                request.session['profile_edit_pending'] = {
+                    'username': new_username,
+                    'email': new_email,
+                    'password': new_password1,
+                }
+                # Generate OTP
+                import random
+                otp = str(random.randint(100000, 999999))
+                request.session['profile_edit_otp'] = otp
+                request.session['profile_edit_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+                # Send email
+                try:
+                    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+                    send_mail(
+                        subject="TakaSave Email Change OTP",
+                        message=f"Your OTP for email change is {otp}. It is valid for 5 minutes.",
+                        from_email=from_email,
+                        recipient_list=[new_email],
+                        fail_silently=False,
+                    )
+                    messages.success(request, f"OTP sent to {new_email}. Verify to complete changes.")
+                    return redirect('profile_edit_verify')
+                except Exception as e:
+                    messages.error(request, "Failed to send OTP email. Please try again.")
+                    return redirect('profile_edit')
+        # If email not changed, apply updates directly
+        if not errors and not email_changed:
+            # Update username
+            if new_username != user.username:
+                user.username = new_username
+            # Update password if provided
+            if new_password1:
+                user.set_password(new_password1)
+            user.save()
+            messages.success(request, "Profile updated successfully.")
+            return redirect('account_details')
+    # GET request – prefill form
+    return render(request, 'profile_edit.html', {'user': user})
+
+@login_required(login_url='/login/')
+def profile_edit_verify(request):
+    """Verify OTP for email change and apply pending profile updates."""
+    pending = request.session.get('profile_edit_pending')
+    if not pending:
+        messages.error(request, "No pending profile changes.")
+        return redirect('profile_edit')
+    if request.method == "POST":
+        user_otp = request.POST.get('otp', '').strip()
+        session_otp = request.session.get('profile_edit_otp')
+        expiry = request.session.get('profile_edit_otp_expiry', 0)
+        if not user_otp:
+            messages.error(request, "OTP is required!")
+        elif timezone.now().timestamp() > expiry:
+            messages.error(request, "OTP expired! Please resend.")
+        elif user_otp != session_otp:
+            messages.error(request, "Invalid OTP.")
+        else:
+            # OTP valid – apply changes
+            user = request.user
+            new_username = pending.get('username')
+            new_email = pending.get('email')
+            new_password = pending.get('password')
+            if new_username and new_username != user.username:
+                user.username = new_username
+            if new_email and new_email != user.email:
+                user.email = new_email
+            if new_password:
+                user.set_password(new_password)
+            user.save()
+            # Cleanup session
+            for key in ['profile_edit_pending', 'profile_edit_otp', 'profile_edit_otp_expiry']:
+                request.session.pop(key, None)
+            messages.success(request, "Profile updated successfully.")
+            return redirect('account_details')
+    return render(request, 'profile_edit_verify.html')
+
+@login_required(login_url='/login/')
+def profile_edit_resend(request):
+    """Resend OTP for email change."""
+    pending = request.session.get('profile_edit_pending')
+    if not pending:
+        messages.error(request, "No pending profile changes.")
+        return redirect('profile_edit')
+    new_email = pending.get('email')
+    if not new_email:
+        messages.error(request, "Email not changed.")
+        return redirect('profile_edit')
+    import random
+    otp = str(random.randint(100000, 999999))
+    request.session['profile_edit_otp'] = otp
+    request.session['profile_edit_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+    try:
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+        send_mail(
+            subject="TakaSave Email Change OTP (Resend)",
+            message=f"Your OTP for email change is {otp}. It is valid for 5 minutes.",
+            from_email=from_email,
+            recipient_list=[new_email],
+            fail_silently=False,
+        )
+        messages.success(request, f"OTP resent to {new_email}.")
+    except Exception as e:
+        messages.error(request, "Failed to send OTP email.")
+    return redirect('profile_edit_verify')
+
+@login_required(login_url='/login/')
+
+def account_delete(request):
+    """Handle account deletion with OTP verification."""
+    user = request.user
     if request.method == "POST":
         user_otp = request.POST.get("otp", "").strip()
         session_otp = request.session.get('delete_account_otp')
         expiry = request.session.get('delete_account_otp_expiry', 0)
-
         if not user_otp:
             messages.error(request, "OTP is required!")
         elif timezone.now().timestamp() > expiry:
@@ -615,18 +762,15 @@ def account_delete(request):
             # OTP is valid, proceed with deletion
             request.session.pop('delete_account_otp', None)
             request.session.pop('delete_account_otp_expiry', None)
-
             user.delete()
             messages.success(request, "Your account has been deleted successfully.")
             return redirect('login')
-
     else:
         # GET request - generate new OTP
         import random
         otp = str(random.randint(100000, 999999))
         request.session['delete_account_otp'] = otp
         request.session['delete_account_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
-
         try:
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
             send_mail(
@@ -640,12 +784,10 @@ def account_delete(request):
         except Exception as e:
             print(f"Error sending deletion OTP email: {e}")
             messages.error(request, "Failed to send verification email. Please check your SMTP settings or try again.")
-
     expiry_time = request.session.get('delete_account_otp_expiry', 0)
     remaining = int(expiry_time - timezone.now().timestamp())
     if remaining < 0:
         remaining = 0
-
     return render(request, 'account_confirm_delete.html', {
         'remaining_seconds': remaining,
         'email': user.email
