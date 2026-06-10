@@ -35,28 +35,42 @@
                             <label for="username" class="text-muted"><i class="bi bi-person me-2"></i>Choose Username</label>
                         </div>
 
-                        <!-- Password -->
-                        <div class="form-floating mb-3">
+                        {% comment %}Password field with visibility toggle and strength indicator{% endcomment %}
+                        <div class="form-floating mb-3 position-relative">
                             <input 
-                                type="password" 
-                                class="form-control rounded-3" 
-                                id="password1" 
-                                name="password1" 
-                                placeholder="Password" 
-                                required>
+                                type="password"
+                                class="form-control rounded-3"
+                                id="password1"
+                                name="password1"
+                                placeholder="Password"
+                                required
+                            >
                             <label for="password1" class="text-muted"><i class="bi bi-shield-lock me-2"></i>Create Password</label>
+                            <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y me-2" onclick="togglePasswordVisibility('password1')">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="mb-3">
+                            <div id="passwordStrength1" class="progress" style="height: 5px;">
+                                <div class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                            </div>
+                            <small id="passwordStrengthText1" class="form-text text-muted"></small>
                         </div>
 
-                        <!-- Confirm Password -->
-                        <div class="form-floating mb-4">
+                        {% comment %}Confirm password field with visibility toggle{% endcomment %}
+                        <div class="form-floating mb-4 position-relative">
                             <input 
-                                type="password" 
-                                class="form-control rounded-3" 
-                                id="password2" 
-                                name="password2" 
-                                placeholder="Confirm Password" 
-                                required>
+                                type="password"
+                                class="form-control rounded-3"
+                                id="password2"
+                                name="password2"
+                                placeholder="Confirm Password"
+                                required
+                            >
                             <label for="password2" class="text-muted"><i class="bi bi-shield-check me-2"></i>Confirm Password</label>
+                            <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y me-2" onclick="togglePasswordVisibility('password2')">
+                                <i class="bi bi-eye"></i>
+                            </button>
                         </div>
 
                         <!-- Submit Button -->
@@ -66,6 +80,43 @@
                             </button>
                         </div>
                     </form>
+<script>
+function togglePasswordVisibility(id) {
+    const input = document.getElementById(id);
+    const icon = input.parentElement.querySelector('button i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        if (icon) icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+function assessPasswordStrength() {
+    const pwd = document.getElementById('password1');
+    const strengthBar = document.querySelector('#passwordStrength1 .progress-bar');
+    const strengthText = document.getElementById('passwordStrengthText1');
+    if (!pwd) return;
+    const val = pwd.value;
+    let strength = 0;
+    if (val.length >= 8) strength += 1;
+    if (/[A-Z]/.test(val)) strength += 1;
+    if (/[0-9]/.test(val)) strength += 1;
+    if (/[^A-Za-z0-9]/.test(val)) strength += 1;
+    const percent = (strength / 4) * 100;
+    strengthBar.style.width = percent + '%';
+    const colors = ['bg-danger','bg-warning','bg-info','bg-success'];
+    strengthBar.className = 'progress-bar ' + (strength>0 ? colors[strength-1] : '');
+    const messages = ['Very Weak','Weak','Medium','Strong'];
+    strengthText.textContent = val ? messages[strength-1] : '';
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const pwd = document.getElementById('password1');
+    if(pwd) {
+        pwd.addEventListener('input', assessPasswordStrength);
+    }
+});
+</script>
                 </div>
             </div>
             <p class="text-center text-muted mt-3 small">© {% now "Y" %} raihanstack. All rights reserved.</p>

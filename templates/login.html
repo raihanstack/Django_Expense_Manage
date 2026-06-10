@@ -37,16 +37,34 @@
                         </div>
 
                         <!-- Password -->
-                        <div class="form-floating mb-3">
-                            <input 
-                                type="password" 
-                                class="form-control" 
-                                id="password" 
-                                name="password"
-                                placeholder="Password"
-                                required>
-                            <label for="password" class="text-muted"><i class="bi bi-shield-lock me-2"></i>Password</label>
-                        </div>
+                        {% comment %}Password field with visibility toggle{% endcomment %}
+<div class="form-floating mb-3 position-relative">
+    <input 
+        type="password"
+        class="form-control"
+        id="password"
+        name="password"
+        placeholder="Password"
+        required
+    >
+    <label for="password" class="text-muted"><i class="bi bi-shield-lock me-2"></i>Password</label>
+    <button type="button" class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y me-2" onclick="togglePasswordVisibility('password')">
+        <i class="bi bi-eye"></i>
+    </button>
+</div>
+<script>
+function togglePasswordVisibility(id) {
+    const input = document.getElementById(id);
+    const icon = input.nextElementSibling.querySelector('i');
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.classList.replace('bi-eye', 'bi-eye-slash');
+    } else {
+        input.type = 'password';
+        if (icon) icon.classList.replace('bi-eye-slash', 'bi-eye');
+    }
+}
+</script>
 
                         <!-- Remember Me -->
                         <div class="mb-3 form-check">
