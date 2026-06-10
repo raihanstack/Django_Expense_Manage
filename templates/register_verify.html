@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Verify OTP | TakaSave{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow border-0 rounded-4 mt-4 mb-5">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <div class="icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background-color: rgba(79, 70, 229, 0.1);">
+                            <i class="bi bi-shield-check fs-2 text-primary"></i>
+                        </div>
+                        <h3 class="card-title fw-bold text-dark">Verify Your Email</h3>
+                        <p class="text-muted small">Step 2 of 3: Verification Code</p>
+                        <p class="text-center text-muted mb-2">We sent an OTP code to:<br><strong class="text-primary">{{ email }}</strong></p>
+                    </div>
+
+                    <!-- Step 2: OTP Form -->
+                    <form method="POST" action="{% url 'register_verify' %}" novalidate>
+                        {% csrf_token %}
+
+                        <!-- OTP Code Input -->
+                        <div class="form-floating mb-3">
+                            <input 
+                                type="text" 
+                                class="form-control rounded-3 text-center fw-bold fs-4 tracking-wider" 
+                                id="otp" 
+                                name="otp" 
+                                placeholder="******" 
+                                maxlength="6"
+                                required
+                                autofocus>
+                            <label for="otp" class="text-muted text-start w-100"><i class="bi bi-key me-2"></i>Enter 6-Digit OTP</label>
+                        </div>
+
+                        <!-- Timer and Resend -->
+                        <div class="d-flex justify-content-between align-items-center mb-4 small px-1">
+                            <div class="text-muted">
+                                <i class="bi bi-clock-history me-1"></i> OTP expires in: <span id="timer" class="fw-bold text-danger">05:00</span>
+                            </div>
+                            <div>
+                                <a href="{% url 'register_resend' %}" id="resend-link" class="text-decoration-none fw-bold text-secondary d-none">Resend OTP</a>
+                                <span id="resend-disabled" class="text-muted fw-semibold">Resend OTP</span>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid mt-4 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold rounded-pill hover-lift shadow-sm">
+                                Verify & Continue <i class="bi bi-arrow-right ms-1"></i>
+                            </button>
+                        </div>
+
+                        <div class="text-center small">
+                            <a href="{% url 'register' %}" class="text-decoration-none fw-semibold">
+                                <i class="bi bi-arrow-left me-1"></i> Change Email
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <p class="text-center text-muted mt-3 small">© {% now "Y" %} raihanstack. All rights reserved.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Setup countdown timer based on remaining seconds sent from Django
+    let remainingSeconds = {{ remaining_seconds|default:300 }};
+    const timerElement = document.getElementById('timer');
+    const resendLink = document.getElementById('resend-link');
+    const resendDisabled = document.getElementById('resend-disabled');
+
+    function updateTimer() {
+        if (remainingSeconds <= 0) {
+            timerElement.textContent = "Expired";
+            timerElement.classList.remove('text-danger');
+            timerElement.classList.add('text-muted');
+            resendLink.classList.remove('d-none');
+            resendDisabled.classList.add('d-none');
+            return;
+        }
+
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        remainingSeconds--;
+        setTimeout(updateTimer, 1000);
+    }
+
+    // Start timer on page load
+    updateTimer();
+</script>
+{% endblock %}

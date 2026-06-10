@@ -10,72 +10,35 @@
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
                         <div class="icon-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; border-radius: 50%; background-color: rgba(14, 165, 233, 0.1);">
-                            <i class="bi bi-person-plus fs-2 text-info"></i>
+                            <i class="bi bi-envelope-check fs-2 text-info"></i>
                         </div>
-                        <h3 class="card-title fw-bold text-dark">Create an Account</h3>
-                        <p class="text-muted small">Join us to start managing your expenses.</p>
-<p class="text-center text-muted mb-2">Please fill the form below to create your account.</p>
+                        <h3 class="card-title fw-bold text-dark">Register with Email</h3>
+                        <p class="text-muted small">Step 1 of 3: Verification</p>
+                        <p class="text-center text-muted mb-2">We will send a 6-digit OTP to verify your email address.</p>
                     </div>
 
-
-                    <!-- Registration Form -->
+                    <!-- Step 1: Email Form -->
                     <form method="POST" action="{% url 'register' %}" novalidate>
                         {% csrf_token %}
 
-                        <!-- Username -->
-                        <div class="form-floating mb-3">
-                            <input 
-                                type="text" 
-                                class="form-control" 
-                                id="username" 
-                                name="username" 
-                                placeholder="Username" 
-                                value="{{ request.POST.username }}" 
-                                required>
-                            <label for="username" class="text-muted"><i class="bi bi-person me-2"></i>Username</label>
-                        </div>
-
-                        <!-- Email -->
-                        <div class="form-floating mb-3">
+                        <!-- Email Input -->
+                        <div class="form-floating mb-4">
                             <input 
                                 type="email" 
-                                class="form-control" 
+                                class="form-control rounded-3" 
                                 id="email" 
                                 name="email" 
                                 placeholder="name@example.com" 
                                 value="{{ request.POST.email }}" 
-                                required>
+                                required
+                                autofocus>
                             <label for="email" class="text-muted"><i class="bi bi-envelope me-2"></i>Email address</label>
-                        </div>
-
-                        <!-- Password -->
-                        <div class="form-floating mb-3">
-                            <input 
-                                type="password" 
-                                class="form-control" 
-                                id="password1" 
-                                name="password1" 
-                                placeholder="Password" 
-                                required>
-                            <label for="password1" class="text-muted"><i class="bi bi-shield-lock me-2"></i>Password</label>
-                        </div>
-
-                        <!-- Confirm Password -->
-                        <div class="form-floating mb-3">
-                            <input 
-                                type="password" 
-                                class="form-control" 
-                                id="password2" 
-                                name="password2" 
-                                placeholder="Confirm Password" 
-                                required>
-                            <label for="password2" class="text-muted"><i class="bi bi-shield-check me-2"></i>Confirm Password</label>
                         </div>
 
                         <!-- Submit Button -->
                         <div class="d-grid mt-4 mb-3">
                             <button type="submit" class="btn btn-primary btn-lg fw-bold rounded-pill hover-lift shadow-sm">
-                                Register
+                                Send Verification OTP <i class="bi bi-arrow-right ms-1"></i>
                             </button>
                         </div>
 
@@ -88,7 +51,7 @@
                     </form>
                 </div>
             </div>
-            <p class="text-center text-muted mt-3 small">© {{ now.year }} raihanstack. All rights reserved.</p>
+            <p class="text-center text-muted mt-3 small">© {% now "Y" %} raihanstack. All rights reserved.</p>
         </div>
     </div>
 </div>

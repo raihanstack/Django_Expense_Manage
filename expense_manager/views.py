@@ -56,8 +56,122 @@ def user_register(request):
         return redirect("home")
 
     if request.method == "POST":
-        username = request.POST.get("username", "").strip()
         email = request.POST.get("email", "").strip()
+
+        errors = False
+
+        if not email:
+            messages.error(request, "Email is required!")
+            errors = True
+        elif User.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered!")
+            errors = True
+
+        if not errors:
+            import random
+            otp = str(random.randint(100000, 999999))
+            request.session['registration_email'] = email
+            request.session['registration_otp'] = otp
+            request.session['registration_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+            request.session['email_verified'] = False
+
+            try:
+                from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+                send_mail(
+                    subject="TakaSave Registration OTP",
+                    message=f"Your verification OTP code is: {otp}. It is valid for 5 minutes. Do not share this OTP with anyone.",
+                    from_email=from_email,
+                    recipient_list=[email],
+                    fail_silently=False,
+                )
+                messages.success(request, f"An OTP has been sent to {email}. Please verify.")
+                return redirect("register_verify")
+            except Exception as e:
+                print(f"Error sending verification email: {e}")
+                messages.error(request, "Failed to send email. Please check your SMTP settings or try again.")
+
+    return render(request, "register.html")
+
+
+def user_register_verify(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    email = request.session.get('registration_email')
+    if not email:
+        messages.error(request, "Please start the registration process first.")
+        return redirect("register")
+
+    if request.method == "POST":
+        user_otp = request.POST.get("otp", "").strip()
+        session_otp = request.session.get('registration_otp')
+        expiry = request.session.get('registration_otp_expiry', 0)
+
+        if not user_otp:
+            messages.error(request, "OTP is required!")
+        elif timezone.now().timestamp() > expiry:
+            messages.error(request, "OTP has expired! Please click resend.")
+        elif user_otp != session_otp:
+            messages.error(request, "Invalid OTP. Please try again.")
+        else:
+            request.session['email_verified'] = True
+            messages.success(request, "Email verified successfully! Complete your account details.")
+            return redirect("register_details")
+
+    expiry_time = request.session.get('registration_otp_expiry', 0)
+    remaining = int(expiry_time - timezone.now().timestamp())
+    if remaining < 0:
+        remaining = 0
+
+    return render(request, "register_verify.html", {
+        "email": email,
+        "remaining_seconds": remaining
+    })
+
+
+def user_register_resend(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    email = request.session.get('registration_email')
+    if not email:
+        messages.error(request, "No registration session found. Please enter your email.")
+        return redirect("register")
+
+    import random
+    otp = str(random.randint(100000, 999999))
+    request.session['registration_otp'] = otp
+    request.session['registration_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+
+    try:
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+        send_mail(
+            subject="TakaSave Registration OTP",
+            message=f"Your verification OTP code is: {otp}. It is valid for 5 minutes. Do not share this OTP with anyone.",
+            from_email=from_email,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+        messages.success(request, f"OTP has been resent to {email}.")
+    except Exception as e:
+        messages.error(request, "Failed to send email. Please check your SMTP settings.")
+
+    return redirect("register_verify")
+
+
+def user_register_details(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
+    email = request.session.get('registration_email')
+    verified = request.session.get('email_verified', False)
+
+    if not email or not verified:
+        messages.error(request, "Please verify your email address first.")
+        return redirect("register")
+
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
         password1 = request.POST.get("password1", "")
         password2 = request.POST.get("password2", "")
 
@@ -70,13 +184,6 @@ def user_register(request):
             messages.error(request, "Username already exists!")
             errors = True
 
-        if not email:
-            messages.error(request, "Email is required!")
-            errors = True
-        elif User.objects.filter(email=email).exists():
-            messages.error(request, "Email already registered!")
-            errors = True
-
         if not password1:
             messages.error(request, "Password is required!")
             errors = True
@@ -87,12 +194,20 @@ def user_register(request):
         if not errors:
             try:
                 User.objects.create_user(username=username, email=email, password=password1)
+                # Clear session
+                request.session.pop('registration_email', None)
+                request.session.pop('registration_otp', None)
+                request.session.pop('registration_otp_expiry', None)
+                request.session.pop('email_verified', None)
+
                 messages.success(request, "Account created successfully! Please login.")
                 return redirect("login")
             except Exception as e:
                 messages.error(request, f"Failed to create account: {str(e)}")
 
-    return render(request, "register.html")
+    return render(request, "register_details.html", {"email": email})
+
+
 
 
 def password_reset_request(request):
