@@ -28,6 +28,7 @@ urlpatterns = [
     # User Account
     path('account/', views.account_details, name='account_details'),
     path('account/delete/', views.account_delete, name='account_delete'),
+    path('account/delete/resend/', views.account_delete_resend, name='account_delete_resend'),
 
     # Wallet Management
     path('wallets/', views.wallet_list, name='wallet_list'),

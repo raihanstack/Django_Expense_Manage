@@ -598,13 +598,82 @@ def account_details(request):
 
 @login_required(login_url='/login/')
 def account_delete(request):
+    user = request.user
+
     if request.method == "POST":
-        user = request.user
-        user.delete()
-        messages.success(request, "Your account has been deleted successfully.")
-        return redirect('login')
-        
-    return render(request, 'account_confirm_delete.html')
+        user_otp = request.POST.get("otp", "").strip()
+        session_otp = request.session.get('delete_account_otp')
+        expiry = request.session.get('delete_account_otp_expiry', 0)
+
+        if not user_otp:
+            messages.error(request, "OTP is required!")
+        elif timezone.now().timestamp() > expiry:
+            messages.error(request, "OTP has expired! Please click resend.")
+        elif user_otp != session_otp:
+            messages.error(request, "Invalid OTP. Please try again.")
+        else:
+            # OTP is valid, proceed with deletion
+            request.session.pop('delete_account_otp', None)
+            request.session.pop('delete_account_otp_expiry', None)
+
+            user.delete()
+            messages.success(request, "Your account has been deleted successfully.")
+            return redirect('login')
+
+    else:
+        # GET request - generate new OTP
+        import random
+        otp = str(random.randint(100000, 999999))
+        request.session['delete_account_otp'] = otp
+        request.session['delete_account_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+
+        try:
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+            send_mail(
+                subject="TakaSave Account Deletion OTP",
+                message=f"Your verification OTP code for account deletion is: {otp}. It is valid for 5 minutes. Do not share this OTP with anyone.",
+                from_email=from_email,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+            messages.info(request, f"A verification OTP has been sent to {user.email}.")
+        except Exception as e:
+            print(f"Error sending deletion OTP email: {e}")
+            messages.error(request, "Failed to send verification email. Please check your SMTP settings or try again.")
+
+    expiry_time = request.session.get('delete_account_otp_expiry', 0)
+    remaining = int(expiry_time - timezone.now().timestamp())
+    if remaining < 0:
+        remaining = 0
+
+    return render(request, 'account_confirm_delete.html', {
+        'remaining_seconds': remaining,
+        'email': user.email
+    })
+
+
+@login_required(login_url='/login/')
+def account_delete_resend(request):
+    user = request.user
+    import random
+    otp = str(random.randint(100000, 999999))
+    request.session['delete_account_otp'] = otp
+    request.session['delete_account_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+
+    try:
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+        send_mail(
+            subject="TakaSave Account Deletion OTP",
+            message=f"Your verification OTP code for account deletion is: {otp}. It is valid for 5 minutes. Do not share this OTP with anyone.",
+            from_email=from_email,
+            recipient_list=[user.email],
+            fail_silently=False,
+            )
+        messages.success(request, f"OTP has been resent to {user.email}.")
+    except Exception as e:
+        messages.error(request, "Failed to send verification email. Please check your SMTP settings.")
+
+    return redirect('account_delete')
 
 # =========================
 # Wallet Management Views

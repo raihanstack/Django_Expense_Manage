@@ -192,3 +192,77 @@ class RegistrationOTPFlowTests(TestCase):
         response = self.client.get(reverse('register_details'))
         self.assertRedirects(response, reverse('register'))
 
+
+class AccountDeletionOTPFlowTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="todelete", email="delete@example.com", password="securepass123")
+        self.client = Client()
+        self.client.login(username="todelete", password="securepass123")
+
+    def test_account_delete_get_sends_otp(self):
+        response = self.client.get(reverse('account_delete'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'account_confirm_delete.html')
+
+        session = self.client.session
+        self.assertIsNotNone(session.get('delete_account_otp'))
+        self.assertIsNotNone(session.get('delete_account_otp_expiry'))
+        self.assertEqual(response.context['email'], 'delete@example.com')
+
+    def test_account_delete_post_success(self):
+        session = self.client.session
+        session['delete_account_otp'] = '654321'
+        session['delete_account_otp_expiry'] = timezone.now().timestamp() + 300
+        session.save()
+
+        response = self.client.post(reverse('account_delete'), {
+            'otp': '654321'
+        })
+        self.assertRedirects(response, reverse('login'))
+
+        # Verify user no longer exists
+        self.assertFalse(User.objects.filter(username="todelete").exists())
+
+        # Verify session is cleared
+        session = self.client.session
+        self.assertIsNone(session.get('delete_account_otp'))
+
+    def test_account_delete_post_incorrect_otp(self):
+        session = self.client.session
+        session['delete_account_otp'] = '654321'
+        session['delete_account_otp_expiry'] = timezone.now().timestamp() + 300
+        session.save()
+
+        response = self.client.post(reverse('account_delete'), {
+            'otp': '000000'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'account_confirm_delete.html')
+
+        # Verify user still exists
+        self.assertTrue(User.objects.filter(username="todelete").exists())
+
+    def test_account_delete_post_expired_otp(self):
+        session = self.client.session
+        session['delete_account_otp'] = '654321'
+        session['delete_account_otp_expiry'] = timezone.now().timestamp() - 10 # expired 10s ago
+        session.save()
+
+        response = self.client.post(reverse('account_delete'), {
+            'otp': '654321'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'account_confirm_delete.html')
+
+        # Verify user still exists
+        self.assertTrue(User.objects.filter(username="todelete").exists())
+
+    def test_account_delete_resend_otp(self):
+        response = self.client.get(reverse('account_delete_resend'))
+        self.assertRedirects(response, reverse('account_delete'))
+
+        session = self.client.session
+        self.assertIsNotNone(session.get('delete_account_otp'))
+        self.assertIsNotNone(session.get('delete_account_otp_expiry'))
+
+

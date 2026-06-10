@@ -14,22 +14,81 @@
                 
                 <div class="alert alert-danger rounded-4 text-start p-4 mb-4">
                     <h5 class="alert-heading fw-bold mb-2"><i class="bi bi-exclamation-octagon me-2"></i>Warning</h5>
-                    <p class="mb-0 text-dark opacity-75">You are about to permanently delete your account (<strong>{{ request.user.username }}</strong>). This will completely erase all of your personal data, including all of your recorded expenses. This action cannot be undone!</p>
+                    <p class="mb-0 text-dark opacity-75">You are about to permanently delete your account (<strong>{{ request.user.username }}</strong>). This will completely erase all of your personal data, including all of your recorded expenses and wallets. This action cannot be undone!</p>
                 </div>
 
-                <div class="d-flex justify-content-center gap-3">
-                    <form method="POST" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" id="btn-delete-account" class="btn btn-danger px-4 py-2 fw-semibold rounded-pill hover-lift shadow-sm">
-                            Yes, I understand. Delete my account.
-                        </button>
-                    </form>
-                    <a href="{% url 'account_details' %}" class="btn btn-light border px-4 py-2 fw-semibold rounded-pill hover-lift transition-all">
-                        Cancel
-                    </a>
+                <div class="alert alert-warning rounded-4 text-start p-3 mb-4 text-center">
+                    <p class="mb-1 text-dark fw-semibold">We sent a verification OTP code to your email:</p>
+                    <strong class="text-primary">{{ email }}</strong>
                 </div>
+
+                <form method="POST" action="{% url 'account_delete' %}" novalidate class="m-0">
+                    {% csrf_token %}
+
+                    <!-- OTP Code Input -->
+                    <div class="form-floating mb-3 max-width-300 mx-auto" style="max-width: 300px;">
+                        <input 
+                            type="text" 
+                            class="form-control rounded-3 text-center fw-bold fs-4 tracking-wider" 
+                            id="otp" 
+                            name="otp" 
+                            placeholder="******" 
+                            maxlength="6"
+                            required
+                            autofocus>
+                        <label for="otp" class="text-muted text-start w-100"><i class="bi bi-key me-2"></i>Enter 6-Digit OTP</label>
+                    </div>
+
+                    <!-- Timer and Resend -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 small px-1 max-width-300 mx-auto" style="max-width: 300px;">
+                        <div class="text-muted">
+                            <i class="bi bi-clock-history me-1"></i> OTP expires in: <span id="timer" class="fw-bold text-danger">05:00</span>
+                        </div>
+                        <div>
+                            <a href="{% url 'account_delete_resend' %}" id="resend-link" class="text-decoration-none fw-bold text-secondary d-none">Resend OTP</a>
+                            <span id="resend-disabled" class="text-muted fw-semibold">Resend OTP</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-3">
+                        <button type="submit" id="btn-delete-account" class="btn btn-danger px-4 py-2 fw-semibold rounded-pill hover-lift shadow-sm">
+                            Yes, Delete My Account <i class="bi bi-trash-fill ms-1"></i>
+                        </button>
+                        <a href="{% url 'account_details' %}" class="btn btn-light border px-4 py-2 fw-semibold rounded-pill hover-lift transition-all">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Setup countdown timer based on remaining seconds sent from Django
+    let remainingSeconds = {{ remaining_seconds|default:300 }};
+    const timerElement = document.getElementById('timer');
+    const resendLink = document.getElementById('resend-link');
+    const resendDisabled = document.getElementById('resend-disabled');
+
+    function updateTimer() {
+        if (remainingSeconds <= 0) {
+            timerElement.textContent = "Expired";
+            timerElement.classList.remove('text-danger');
+            timerElement.classList.add('text-muted');
+            resendLink.classList.remove('d-none');
+            resendDisabled.classList.add('d-none');
+            return;
+        }
+
+        const minutes = Math.floor(remainingSeconds / 60);
+        const seconds = remainingSeconds % 60;
+        timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        remainingSeconds--;
+        setTimeout(updateTimer, 1000);
+    }
+
+    // Start timer on page load
+    updateTimer();
+</script>
 {% endblock %}
