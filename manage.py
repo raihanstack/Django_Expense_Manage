@@ -3,9 +3,12 @@
 import os
 import sys
 
+# Vercel needs a top‑level WSGI handler
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 def main():
     """Run administrative tasks."""
+    # Settings are already set above for Vercel, but keep the original fallback
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     try:
         from django.core.management import execute_from_command_line
@@ -20,3 +23,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# Expose the WSGI application for Vercel's Python runtime
+from django.core.wsgi import get_wsgi_application
+handler = get_wsgi_application()
