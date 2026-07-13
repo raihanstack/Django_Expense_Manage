@@ -15,7 +15,14 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 DEBUG = True
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost').split(',')
+if '.vercel.app' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.vercel.app')
+
 CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+if 'https://*.vercel.app' not in CSRF_TRUSTED_ORIGINS:
+    # Filter out empty string if it exists from split
+    CSRF_TRUSTED_ORIGINS = [origin for origin in CSRF_TRUSTED_ORIGINS if origin]
+    CSRF_TRUSTED_ORIGINS.append('https://*.vercel.app')
 
 # =========================
 # Installed apps
