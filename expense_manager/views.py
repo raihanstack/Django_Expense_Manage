@@ -419,9 +419,25 @@ def expense_create(request):
                 "today_date": today_date,
             })
 
-        with transaction.atomic():
-            Expense.objects.create(
-                user=request.user,
+        try:
+            with transaction.atomic():
+                Expense.objects.create(
+                    user=request.user,
+                    title=title,
+                    amount=amount_dec,
+                    category=category,
+                    wallet=wallet,
+                    date=parsed_date,
+                    description=description
+                )
+                if wallet:
+                    wallet.balance -= amount_dec
+                    wallet.save()
+            messages.success(request, "Expense added successfully!")
+            return redirect("expense_list")
+        except Exception as e:
+            messages.error(request, f"Failed to save expense: {str(e)}")
+            dummy_expense = Expense(
                 title=title,
                 amount=amount_dec,
                 category=category,
@@ -429,12 +445,12 @@ def expense_create(request):
                 date=parsed_date,
                 description=description
             )
-            if wallet:
-                wallet.balance -= amount_dec
-                wallet.save()
-
-        messages.success(request, "Expense added successfully!")
-        return redirect("expense_list")
+            return render(request, 'expense_form.html', {
+                "expense": dummy_expense,
+                "categories": categories,
+                "wallets": wallets,
+                "today_date": today_date,
+            })
 
     return render(request, 'expense_form.html', {
         "categories": categories,
@@ -536,30 +552,37 @@ def expense_update(request, expense_id):
                 "wallets": wallets,
             })
 
-        with transaction.atomic():
-            expense.title = title
-            expense.amount = new_amount
-            expense.category = category
-            expense.wallet = new_wallet
-            expense.date = parsed_date
-            expense.description = description
-            expense.save()
+        try:
+            with transaction.atomic():
+                expense.title = title
+                expense.amount = new_amount
+                expense.category = category
+                expense.wallet = new_wallet
+                expense.date = parsed_date
+                expense.description = description
+                expense.save()
 
-            # Adjust wallet balances
-            if old_wallet == new_wallet:
-                if old_wallet:
-                    old_wallet.balance += old_amount - new_amount
-                    old_wallet.save()
-            else:
-                if old_wallet:
-                    old_wallet.balance += old_amount
-                    old_wallet.save()
-                if new_wallet:
-                    new_wallet.balance -= new_amount
-                    new_wallet.save()
-
-        messages.success(request, "Expense updated successfully!")
-        return redirect("expense_list")
+                # Adjust wallet balances
+                if old_wallet == new_wallet:
+                    if old_wallet:
+                        old_wallet.balance += old_amount - new_amount
+                        old_wallet.save()
+                else:
+                    if old_wallet:
+                        old_wallet.balance += old_amount
+                        old_wallet.save()
+                    if new_wallet:
+                        new_wallet.balance -= new_amount
+                        new_wallet.save()
+            messages.success(request, "Expense updated successfully!")
+            return redirect("expense_list")
+        except Exception as e:
+            messages.error(request, f"Failed to update expense: {str(e)}")
+            return render(request, 'expense_form.html', {
+                "expense": expense,
+                "categories": categories,
+                "wallets": wallets,
+            })
 
     return render(request, 'expense_form.html', {
         "expense": expense,
@@ -574,12 +597,15 @@ def expense_delete(request, expense_id):
     if request.method == "POST":
         wallet = expense.wallet
         amount = expense.amount
-        with transaction.atomic():
-            expense.delete()
-            if wallet:
-                wallet.balance += amount
-                wallet.save()
-        messages.success(request, "Expense Deleted Successfully!")
+        try:
+            with transaction.atomic():
+                expense.delete()
+                if wallet:
+                    wallet.balance += amount
+                    wallet.save()
+            messages.success(request, "Expense Deleted Successfully!")
+        except Exception as e:
+            messages.error(request, f"Failed to delete expense: {str(e)}")
         return redirect('expense_list')
 
     return render(request, 'expense_confirm_delete.html', {
@@ -621,6 +647,14 @@ def profile_edit(request):
             messages.error(request, "Username already taken!")
             errors = True
 
+        # Email validation (optional but if provided must be unique)
+        if not new_email:
+            messages.error(request, "Email is required!")
+            errors = True
+        elif new_email != user.email and User.objects.filter(email=new_email).exists():
+            messages.error(request, "Email already registered by another user!")
+            errors = True
+
         # Password validation (optional)
         if new_password1 or new_password2:
             if new_password1 != new_password2:
@@ -630,52 +664,90 @@ def profile_edit(request):
                 messages.error(request, "Password must be at least 8 characters.")
                 errors = True
 
-        # Email change requires OTP
+        if errors:
+            return render(request, 'profile_edit.html', {
+                'user': user,
+                'form_username': new_username,
+                'form_email': new_email
+            })
+
+        # Collect pending changes (username, email, password)
+        pending_changes = {
+            'username': new_username,
+            'email': new_email,
+            'password': new_password1,
+        }
+        # Determine what fields are actually changing
         email_changed = new_email and new_email != user.email
-        if email_changed:
-            if User.objects.filter(email=new_email).exists():
-                messages.error(request, "Email already in use!")
-                errors = True
-            if not errors:
-                # Store pending changes in session
-                request.session['profile_edit_pending'] = {
-                    'username': new_username,
-                    'email': new_email,
-                    'password': new_password1,
-                }
-                # Generate OTP
-                import random
-                otp = str(random.randint(100000, 999999))
-                request.session['profile_edit_otp'] = otp
-                request.session['profile_edit_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
-                # Send email
-                try:
-                    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
-                    send_mail(
-                        subject="TakaSave Email Change OTP",
-                        message=f"Your OTP for email change is {otp}. It is valid for 5 minutes.",
-                        from_email=from_email,
-                        recipient_list=[new_email],
-                        fail_silently=False,
-                    )
-                    messages.success(request, f"OTP sent to {new_email}. Verify to complete changes.")
-                    return redirect('profile_edit_verify')
-                except Exception as e:
-                    messages.error(request, "Failed to send OTP email. Please try again.")
-                    return redirect('profile_edit')
-        # If email not changed, apply updates directly
-        if not errors and not email_changed:
-            # Update username
-            if new_username != user.username:
-                user.username = new_username
-            # Update password if provided
-            if new_password1:
-                user.set_password(new_password1)
-            user.save()
-            messages.success(request, "Profile updated successfully.")
-            return redirect('account_details')
+        username_changed = new_username != user.username
+        password_changed = new_password1 != ''
+
+        # Validate that at least one field is being changed
+        if not any([email_changed, username_changed, password_changed]):
+            messages.error(request, "No changes detected.")
+            return render(request, 'profile_edit.html', {
+                'user': user,
+                'form_username': new_username,
+                'form_email': new_email
+            })
+
+        # If only username/password are changing (no email change), apply directly without OTP
+        if not email_changed:
+            try:
+                if username_changed:
+                    user.username = new_username
+                if password_changed:
+                    user.set_password(new_password1)
+                user.save()
+                if password_changed:
+                    # Preserve login after password change
+                    from django.contrib.auth import update_session_auth_hash
+                    update_session_auth_hash(request, user)
+                messages.success(request, "Profile updated successfully.")
+                return redirect('account_details')
+            except Exception as e:
+                messages.error(request, f"Failed to update profile: {str(e)}")
+                return render(request, 'profile_edit.html', {
+                    'user': user,
+                    'form_username': new_username,
+                    'form_email': new_email
+                })
+
+        # Otherwise, require OTP (email change or both email and other fields)
+        # Store pending changes in session for OTP verification
+        request.session['profile_edit_pending'] = pending_changes
+        # Generate OTP
+        import random
+        otp = str(random.randint(100000, 999999))
+        request.session['profile_edit_otp'] = otp
+        request.session['profile_edit_otp_expiry'] = (timezone.now() + timezone.timedelta(minutes=5)).timestamp()
+        
+        # Send OTP email to the new email
+        target_email = new_email
+        try:
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'raihan.invite@gmail.com')
+            send_mail(
+                subject="TakaSave Profile Change OTP",
+                message=f"Your OTP for confirming profile changes is {otp}. It is valid for 5 minutes.",
+                from_email=from_email,
+                recipient_list=[target_email],
+                fail_silently=False,
+            )
+            messages.success(request, f"OTP sent to {target_email}. Verify to apply changes.")
+            return redirect('profile_edit_verify')
+        except Exception as e:
+            messages.error(request, f"Failed to send OTP email: {str(e)}")
+            return render(request, 'profile_edit.html', {
+                'user': user,
+                'form_username': new_username,
+                'form_email': new_email
+            })
     # GET request – prefill form
-    return render(request, 'profile_edit.html', {'user': user})
+    return render(request, 'profile_edit.html', {
+        'user': user,
+        'form_username': user.username,
+        'form_email': user.email
+    })
 
 @login_required(login_url='/login/')
 def profile_edit_verify(request):
@@ -706,6 +778,9 @@ def profile_edit_verify(request):
                 user.email = new_email
             if new_password:
                 user.set_password(new_password)
+                # Preserve login after password change
+                from django.contrib.auth import update_session_auth_hash
+                update_session_auth_hash(request, user)
             user.save()
             # Cleanup session
             for key in ['profile_edit_pending', 'profile_edit_otp', 'profile_edit_otp_expiry']:
@@ -915,11 +990,13 @@ def wallet_deposit(request):
             messages.error(request, "Please enter a valid positive amount!")
             return redirect('wallet_list')
             
-        with transaction.atomic():
-            wallet.balance += amount_dec
-            wallet.save()
-            
-        messages.success(request, f"Deposited ৳ {amount_dec:.2f} into '{wallet.name}'!")
+        try:
+            with transaction.atomic():
+                wallet.balance += amount_dec
+                wallet.save()
+            messages.success(request, f"Deposited ৳ {amount_dec:.2f} into '{wallet.name}'!")
+        except Exception as e:
+            messages.error(request, f"Failed to deposit amount: {str(e)}")
     return redirect('wallet_list')
 
 @login_required(login_url='/login/')
@@ -952,15 +1029,26 @@ def wallet_transfer(request):
             messages.error(request, f"Insufficient balance in '{from_wallet.name}'!")
             return redirect('wallet_list')
             
-        with transaction.atomic():
-            from_wallet.balance -= amount_dec
-            to_wallet.balance += amount_dec
-            from_wallet.save()
-            to_wallet.save()
-            
-        messages.success(request, f"Transferred ৳ {amount_dec:.2f} from '{from_wallet.name}' to '{to_wallet.name}'!")
+        try:
+            with transaction.atomic():
+                from_wallet.balance -= amount_dec
+                to_wallet.balance += amount_dec
+                from_wallet.save()
+                to_wallet.save()
+            messages.success(request, f"Transferred ৳ {amount_dec:.2f} from '{from_wallet.name}' to '{to_wallet.name}'!")
+        except Exception as e:
+            messages.error(request, f"Failed to transfer amount: {str(e)}")
     return redirect('wallet_list')
 
 
-def handler404(request, exception):
+def handler400(request, exception=None):
+    return render(request, '400.html', status=400)
+
+def handler403(request, exception=None):
+    return render(request, '403.html', status=403)
+
+def handler404(request, exception=None):
     return render(request, '404.html', status=404)
+
+def handler500(request):
+    return render(request, '500.html', status=500)

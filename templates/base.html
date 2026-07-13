@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,114 +36,118 @@
     <!-- Google Font: Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <!-- Favicon -->
-    <link rel="icon" href="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png" type="image/x-icon">
+    <link rel="icon"
+        href="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png"
+        type="image/x-icon">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Bootstrap CSS -->
-    {% comment %}Bootstrap CSS via CDN for reliable loading{% endcomment %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-..." crossorigin="anonymous">
-    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+    <!-- Bootstrap CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/custom.css' %}?v=2" rel="stylesheet">
+
 
     {% block extra_head %}{% endblock %}
 </head>
 
 <body>
-<nav class="navbar navbar-glass navbar-expand-lg sticky-top transition-all">
-    <div class="container">
+    <nav class="navbar navbar-glass navbar-expand-lg sticky-top transition-all">
+        <div class="container">
 
-        <!-- Logo -->
-        <a class="navbar-brand d-flex align-items-center fw-bold text-gradient fs-4" href="{% url 'home' %}">
-            <img src="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png"
-                 alt="logo" width="35" height="35" class="me-2">
-            TakaSave
-        </a>
+            <!-- Logo -->
+            <a class="navbar-brand d-flex align-items-center fw-bold text-gradient fs-4" href="{% url 'home' %}">
+                <img src="https://raw.githubusercontent.com/raihanstack/Django_Expense_Manage/refs/heads/master/staticfiles/taka..png"
+                    alt="logo" width="35" height="35" class="me-2">
+                TakaSave
+            </a>
 
-        <!-- Mobile header for small screens: logo left, auth button right -->
-<div class="d-flex align-items-center d-lg-none ms-auto">
-    {% if request.user.is_authenticated %}
-        <a class="btn btn-light btn-sm fw-semibold" href="{% url 'logout' %}">Logout</a>
-    {% else %}
-        <a class="btn btn-light btn-sm fw-semibold me-2" href="{% url 'login' %}">Login</a>
-        <a class="btn btn-light btn-sm fw-semibold" href="{% url 'register' %}">Register</a>
-    {% endif %}
-</div>
-
-        <!-- Navbar Links -->
-        <div class="collapse navbar-collapse top-nav-links" id="navbarNav">
-            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
-
+            <!-- Mobile header for small screens: logo left, auth button right -->
+            <div class="d-flex align-items-center d-lg-none ms-auto">
                 {% if request.user.is_authenticated %}
+                <a class="btn btn-light btn-sm fw-semibold" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                <a class="btn btn-light btn-sm fw-semibold me-2" href="{% url 'login' %}">Login</a>
+                <a class="btn btn-light btn-sm fw-semibold" href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+
+            <!-- Navbar Links -->
+            <div class="collapse navbar-collapse top-nav-links" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+
+                    {% if request.user.is_authenticated %}
 
                     <li class="nav-item">
-                        <a class="nav-link px-3 fw-semibold" href="{% url 'home' %}">
+                        <a class="nav-link hover-lift px-3 fw-semibold" href="{% url 'home' %}">
                             <i class="bi bi-house-door me-1"></i> Home
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link px-3 fw-semibold" href="{% url 'expense_list' %}">
+                        <a class="nav-link hover-lift px-3 fw-semibold" href="{% url 'expense_list' %}">
                             <i class="bi bi-wallet2 me-1"></i> Expenses
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link px-3 fw-semibold" href="{% url 'wallet_list' %}">
+                        <a class="nav-link hover-lift px-3 fw-semibold" href="{% url 'wallet_list' %}">
                             <i class="bi bi-credit-card me-1"></i> Wallets
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link px-3 fw-semibold" href="{% url 'expense_create' %}">
+                        <a class="nav-link hover-lift px-3 fw-semibold" href="{% url 'expense_create' %}">
                             <i class="bi bi-plus-circle me-1"></i> Add Expense
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link text-primary fw-bold px-3" href="{% url 'account_details' %}" style="transition: transform 0.2s; display: inline-block;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                        <a class="nav-link hover-lift text-primary fw-bold px-3" href="{% url 'account_details' %}"
+                            style="transition: transform 0.2s; display: inline-block;"
+                            onmouseover="this.style.transform='translateY(-2px)'"
+                            onmouseout="this.style.transform='translateY(0)'">
                             <i class="bi bi-person-circle me-1"></i> {{ request.user.username }}
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3 px-3" href="{% url 'logout' %}">
+                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3 px-3 hover-lift" href="{% url 'logout' %}">
                             Logout
                         </a>
                     </li>
 
-                {% else %}
+                    {% else %}
 
                     <li class="nav-item">
-                        <a class="nav-link px-3 fw-semibold" href="{% url 'login' %}">
+                        <a class="nav-link hover-lift px-3 fw-semibold" href="{% url 'login' %}">
                             Login
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3 px-3" href="{% url 'register' %}">
+                        <a class="btn btn-light btn-sm fw-semibold ms-lg-3 px-3 hover-lift" href="{% url 'register' %}">
                             Register
                         </a>
                     </li>
 
-                {% endif %}
-            </ul>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Main content -->
     <main class="container py-4 page-fade-in">
         <!-- Messages -->
         {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-dismissible fade show rounded-3 
+        {% for message in messages %}
+        <div class="alert alert-dismissible fade show rounded-3 
                     {% if message.tags == 'error' %}alert-danger
                     {% elif message.tags == 'success' %}alert-success
-                    {% else %}alert-primary{% endif %}" 
-                    role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
+                    {% else %}alert-primary{% endif %}" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
         {% endif %}
 
         {% block content %}
@@ -151,67 +156,65 @@
     </main>
 
     <!-- Footer -->
-<footer class="footer-modern mt-5">
-    <div class="container py-4">
-    <div class="row mb-3 text-center">
-        <p class="lead text-muted mb-0">পেশাদার ব্যয় ট্র্যাকার – সুনিপুণ, নিরাপদ এবং স্বজ্ঞাত ইন্টারফেসের সঙ্গে সহজে আপনার আর্থিক ব্যবস্থাপনা করুন। ব্যয় ট্র্যাক করুন, প্রবণতা বিশ্লেষণ করুন, এবং আপনার বাজেট লক্ষ্য অর্জন করুন—সব একসঙ্গে একটি শক্তিশালী প্ল্যাটফর্মে।</p>
-    </div>
-        <div class="row align-items-center text-center text-md-start">
+    <footer class="footer-modern mt-5">
+        <div class="container py-4">
 
-            <!-- Left Side -->
-            <div class="col-md-6 mb-3 mb-md-0">
-        {% comment %}Footer updated to TakaSave branding{% endcomment %}
-        <h6 class="fw-bold mb-1">TakaSave</h6>
-        <small class="text-muted">
-            &copy; {{ year|default:2026 }} TakaSave. All rights reserved.
-        </small>
+            <div class="row align-items-center text-center text-md-start">
+
+                <!-- Left Side -->
+                <div class="col-md-6 mb-3 mb-md-0">
+                    {% comment %}Footer updated to TakaSave branding{% endcomment %}
+                    <h6 class="fw-bold mb-1">TakaSave</h6>
+                    <small class="text-muted">
+                        &copy; {{ year|default:2026 }} raihanstack. All rights reserved.
+                    </small>
+                </div>
+
+                <!-- Right Side (Social Icons) -->
+                <div class="col-md-6 text-md-end">
+                    <a href="https://github.com/raihanstack" target="_blank" class="text-dark me-3 fs-5">
+                        <i class="bi bi-github"></i>
+                    </a>
+                    <a href="https://linkedin.com/in/raihanstack" target="_blank" class="text-primary fs-5">
+                        <i class="bi bi-linkedin"></i>
+                    </a>
+                </div>
+
             </div>
-
-            <!-- Right Side (Social Icons) -->
-            <div class="col-md-6 text-md-end">
-                <a href="https://github.com/raihanstack" target="_blank" class="text-dark me-3 fs-5">
-                    <i class="bi bi-github"></i>
-                </a>
-                <a href="https://linkedin.com/in/raihanstack" target="_blank" class="text-primary fs-5">
-                    <i class="bi bi-linkedin"></i>
-                </a>
-            </div>
-
         </div>
-    </div>
-</footer>
+    </footer>
 
     <!-- Bottom Nav for Mobile -->
     <nav class="bottom-nav">
         {% if request.user.is_authenticated %}
         <div class="nav-item">
-            <a href="{% url 'home' %}" class="nav-link text-decoration-none border-0">
+            <a href="{% url 'home' %}" class="nav-link hover-lift text-decoration-none border-0">
                 <i class="bi bi-house-door"></i> Home
             </a>
         </div>
         <div class="nav-item">
-            <a href="{% url 'expense_list' %}" class="nav-link text-decoration-none border-0">
+            <a href="{% url 'expense_list' %}" class="nav-link hover-lift text-decoration-none border-0">
                 <i class="bi bi-wallet2"></i> Expenses
             </a>
         </div>
         <div class="nav-item">
-            <a href="{% url 'wallet_list' %}" class="nav-link text-decoration-none border-0">
+            <a href="{% url 'wallet_list' %}" class="nav-link hover-lift text-decoration-none border-0">
                 <i class="bi bi-credit-card"></i> Wallets
             </a>
         </div>
         <div class="nav-item">
-            <a href="{% url 'expense_create' %}" class="nav-link text-decoration-none border-0">
+            <a href="{% url 'expense_create' %}" class="nav-link hover-lift text-decoration-none border-0">
                 <i class="bi bi-plus-circle"></i> Add
             </a>
         </div>
         <div class="nav-item">
-            <a href="{% url 'account_details' %}" class="nav-link text-decoration-none border-0">
+            <a href="{% url 'account_details' %}" class="nav-link hover-lift text-decoration-none border-0">
                 <i class="bi bi-person-circle"></i> Profile
             </a>
         </div>
         {% else %}
         <div class="nav-item">
-            <a href="{% url 'login' %}" class="nav-link text-decoration-none border-0">
+            <a href="{% url 'login' %}" class="nav-link hover-lift text-decoration-none border-0">
                 <i class="bi bi-box-arrow-in-right"></i> Login
             </a>
         </div>
@@ -231,5 +234,19 @@
 
 
     {% block extra_js %}{% endblock %}
+
+    <!-- Highlight active bottom nav link -->
+    <script>
+        (function () {
+            const path = window.location.pathname;
+            document.querySelectorAll('.bottom-nav .nav-link').forEach(function (link) {
+                const href = link.getAttribute('href');
+                if (href && (path === href || (href !== '/' && path.startsWith(href)))) {
+                    link.classList.add('active');
+                }
+            });
+        })();
+    </script>
 </body>
+
 </html>

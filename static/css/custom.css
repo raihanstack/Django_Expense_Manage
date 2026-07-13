@@ -6,7 +6,6 @@
 }
 
 @media (max-width: 991px) {
-    /* Show bottom nav only on mobile/tablet */
     .bottom-nav {
         display: flex;
         position: fixed;
@@ -23,13 +22,11 @@
         justify-content: space-around;
         align-items: center;
     }
-
     .bottom-nav .nav-item {
         flex: 1;
         display: flex;
         justify-content: center;
     }
-
     .bottom-nav .nav-link {
         display: flex;
         flex-direction: column;
@@ -44,30 +41,26 @@
         text-decoration: none;
         letter-spacing: 0.3px;
     }
-
     .bottom-nav .nav-link i {
         font-size: 1.35rem;
         transition: all 0.2s ease;
     }
-
     .bottom-nav .nav-link:hover,
     .bottom-nav .nav-link.active {
         color: #4f46e5 !important;
         background: rgba(99, 102, 241, 0.08);
     }
-
     .bottom-nav .nav-link:hover i,
     .bottom-nav .nav-link.active i {
         transform: translateY(-2px);
         color: #4f46e5;
     }
-
-    /* Add padding to body so content isn't hidden behind bottom nav */
     body {
         padding-bottom: 70px;
     }
 }
 /* ============================================================= */
+
 
 
 :root {

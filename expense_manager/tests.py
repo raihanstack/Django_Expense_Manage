@@ -64,7 +64,7 @@ class ExpenseManagerTests(TestCase):
         
         # Verify no expense was created in database
         expense = Expense.objects.filter(user=self.user, title='Expensive Dinner').first()
-        self.assertIsNull = self.assertIsNone(expense)
+        self.assertIsNone(expense)
         
         # Verify wallet balance remained unchanged
         self.wallet.refresh_from_db()
@@ -264,5 +264,105 @@ class AccountDeletionOTPFlowTests(TestCase):
         session = self.client.session
         self.assertIsNotNone(session.get('delete_account_otp'))
         self.assertIsNotNone(session.get('delete_account_otp_expiry'))
+
+
+class ProfileEditFlowTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="profileuser", email="profile@example.com", password="password123")
+        self.client = Client()
+        self.client.login(username="profileuser", password="password123")
+
+    def test_profile_edit_no_changes(self):
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'profileuser',
+            'email': 'profile@example.com',
+            'password1': '',
+            'password2': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profile_edit.html')
+        from django.contrib.messages import get_messages
+        msg_list = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertIn("No changes detected.", msg_list)
+
+    def test_profile_edit_username_change_success(self):
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'newprofileuser',
+            'email': 'profile@example.com',
+            'password1': '',
+            'password2': ''
+        })
+        self.assertRedirects(response, reverse('account_details'))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, 'newprofileuser')
+
+    def test_profile_edit_username_taken(self):
+        User.objects.create_user(username="takenuser", email="taken@example.com", password="password123")
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'takenuser',
+            'email': 'profile@example.com',
+            'password1': '',
+            'password2': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profile_edit.html')
+        
+        # Verify no changes made to our user
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, 'profileuser')
+
+    def test_profile_edit_email_taken(self):
+        User.objects.create_user(username="takenemailuser", email="takenemail@example.com", password="password123")
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'profileuser',
+            'email': 'takenemail@example.com',
+            'password1': '',
+            'password2': ''
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profile_edit.html')
+        
+        from django.contrib.messages import get_messages
+        msg_list = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertIn("Email already registered by another user!", msg_list)
+
+    def test_profile_edit_password_mismatch(self):
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'profileuser',
+            'email': 'profile@example.com',
+            'password1': 'newpass123',
+            'password2': 'differentpass'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profile_edit.html')
+        
+        from django.contrib.messages import get_messages
+        msg_list = [m.message for m in get_messages(response.wsgi_request)]
+        self.assertIn("Passwords do not match!", msg_list)
+
+    def test_profile_edit_password_too_short(self):
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'profileuser',
+            'email': 'profile@example.com',
+            'password1': 'short',
+            'password2': 'short'
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'profile_edit.html')
+
+    def test_profile_edit_email_change_sends_otp(self):
+        response = self.client.post(reverse('profile_edit'), {
+            'username': 'profileuser',
+            'email': 'newemail@example.com',
+            'password1': '',
+            'password2': ''
+        })
+        self.assertRedirects(response, reverse('profile_edit_verify'))
+        
+        session = self.client.session
+        self.assertIsNotNone(session.get('profile_edit_pending'))
+        self.assertEqual(session.get('profile_edit_pending').get('email'), 'newemail@example.com')
+        self.assertIsNotNone(session.get('profile_edit_otp'))
+
 
 

@@ -4,193 +4,364 @@
 {% block title %}Home | TakaSave{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
 
-    <!-- Hero Section -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="p-5 bg-white rounded-4 shadow-sm text-center mb-4 position-relative overflow-hidden" style="border: 1px solid rgba(0,0,0,0.05);">
-                <div class="position-absolute top-0 start-0 w-100 h-100" style="background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.05), transparent 50%); z-index: 0;"></div>
-                <div class="position-relative" style="z-index: 1;">
-                    <h1 class="display-5 fw-bold mb-3">Welcome back, <span class="text-gradient">{{ request.user.username }}</span>!</h1>
-                    <p class="lead text-secondary mb-4 opacity-75">Track, analyze, and optimize your spending beautifully.</p>
-                    <a href="{% url 'expense_create' %}" class="btn btn-primary btn-lg px-4 py-2 fw-semibold rounded-pill hover-lift shadow-sm">
-                        <i class="bi bi-plus-circle me-2"></i> Add New Expense
-                    </a>
+<div class="position-relative">
+
+<!-- ===== BENTO GRID ===== -->
+<div class="bento-grid">
+
+    <!-- HERO CARD -->
+    <div class="bento-cell hero-cell animate-fade-up">
+        <div class="hero-inner h-100 p-4 p-lg-5 d-flex flex-column justify-content-between">
+            <div>
+                <div class="live-badge mb-3">
+                    <span class="live-dot"></span>
+                    <small>Live</small>
                 </div>
+                <h2 class="fw-bold mb-1 text-white" style="font-size:clamp(1.4rem,2.5vw,2rem);">{{ request.user.username }}</h2>
+                <p class="mb-0" style="color:rgba(255,255,255,0.6);font-size:0.85rem;">TakaSave Dashboard</p>
+            </div>
+            <a href="{% url 'expense_create' %}" class="hero-btn align-self-start mt-4">
+                <i class="bi bi-plus-lg"></i> Add Expense
+            </a>
+        </div>
+    </div>
+
+    <!-- BALANCE -->
+    <div class="bento-cell metric-cell animate-fade-up delay-1 p-4 d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-start">
+            <span class="metric-label">Balance</span>
+            <div class="metric-icon"><i class="bi bi-cash-stack"></i></div>
+        </div>
+        <div>
+            <div class="metric-value">৳{{ total_balance|floatformat:0 }}</div>
+            <small class="metric-sub"><i class="bi bi-arrow-up-right"></i> All wallets</small>
+        </div>
+    </div>
+
+    <!-- TOTAL SPENT -->
+    <div class="bento-cell metric-cell animate-fade-up delay-2 p-4 d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-start">
+            <span class="metric-label">Total Spent</span>
+            <div class="metric-icon"><i class="bi bi-wallet2"></i></div>
+        </div>
+        <div>
+            <div class="metric-value">৳{{ total_expenses|floatformat:0 }}</div>
+            <small class="metric-sub"><i class="bi bi-infinity"></i> All time</small>
+        </div>
+    </div>
+
+    <!-- THIS MONTH -->
+    <div class="bento-cell metric-cell animate-fade-up delay-3 p-4 d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-start">
+            <span class="metric-label">This Month</span>
+            <div class="metric-icon"><i class="bi bi-calendar-event"></i></div>
+        </div>
+        <div>
+            <div class="metric-value">৳{{ month_expenses|floatformat:0 }}</div>
+            <small class="metric-sub"><i class="bi bi-calendar3"></i> Current month</small>
+        </div>
+    </div>
+
+    <!-- LAST 7 DAYS -->
+    <div class="bento-cell metric-cell animate-fade-up delay-4 p-4 d-flex flex-column justify-content-between">
+        <div class="d-flex justify-content-between align-items-start">
+            <span class="metric-label">Last 7 Days</span>
+            <div class="metric-icon"><i class="bi bi-clock-history"></i></div>
+        </div>
+        <div>
+            <div class="metric-value">৳{{ week_expenses|floatformat:0 }}</div>
+            <small class="metric-sub"><i class="bi bi-graph-up"></i> Recent spend</small>
+        </div>
+    </div>
+
+    <!-- DONUT CHART -->
+    <div class="bento-cell chart-cell animate-fade-up delay-2 d-flex flex-column">
+        <div class="cell-header">
+            <div class="cell-accent"></div>
+            <span class="cell-title">By Category</span>
+        </div>
+        <div class="flex-grow-1 d-flex align-items-center justify-content-center p-3">
+            <div style="position:relative;width:100%;max-width:190px;">
+                <canvas id="expenseChart"></canvas>
+                {% if not category_data %}
+                <div class="empty-state"><i class="bi bi-pie-chart"></i><small>No data yet</small></div>
+                {% endif %}
             </div>
         </div>
     </div>
 
-<!-- Summary Cards -->
-    <div class="row g-4 mb-5">
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
-                <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Available Balance</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ total_balance|floatformat:2 }}</h3>
-                    </div>
-                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(16, 185, 129, 0.1);">
-                        <i class="bi bi-cash-coin fs-3" style="color: #10b981;"></i>
-                    </div>
-                </div>
-            </div>
+    <!-- BREAKDOWN -->
+    <div class="bento-cell breakdown-cell animate-fade-up delay-3 d-flex flex-column">
+        <div class="cell-header">
+            <div class="cell-accent"></div>
+            <span class="cell-title">Breakdown</span>
         </div>
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
-                <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Total Expenses</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ total_expenses|floatformat:2 }}</h3>
+        <div class="px-4 pb-4 flex-grow-1 d-flex flex-column gap-3 overflow-auto">
+            {% if category_data %}
+                {% with max_total=category_data.0.total %}
+                {% for item in category_data %}
+                <div>
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="bar-label">{{ item.category__name }}</span>
+                        <span class="bar-value">৳{{ item.total|floatformat:0 }}</span>
                     </div>
-                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(79, 70, 229, 0.1);">
-                        <i class="bi bi-wallet2 fs-3" style="color: #4f46e5;"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
-                <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">This Month</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ month_expenses|floatformat:2 }}</h3>
-                    </div>
-                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(14, 165, 233, 0.1);">
-                        <i class="bi bi-calendar-event fs-3" style="color: #0ea5e9;"></i>
+                    <div class="progress-premium-bar">
+                        <div class="progress-fill" style="width:{% widthratio item.total max_total 100 %}%;"></div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-md-3">
-            <div class="card border-0 shadow-sm h-100 rounded-4 hover-lift" style="background: linear-gradient(135deg, #ffffff 0%, #f4f6fa 100%);">
-                <div class="card-body p-4 d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="text-muted fw-bold text-uppercase tracking-wide mb-2" style="font-size: 0.75rem; letter-spacing: 1px;">Last 7 Days</h6>
-                        <h3 class="fw-bold text-dark mb-0">৳ {{ week_expenses|floatformat:2 }}</h3>
-                    </div>
-                    <div class="icon-circle d-flex align-items-center justify-content-center" style="width: 55px; height: 55px; border-radius: 12px; background-color: rgba(245, 158, 11, 0.1);">
-                        <i class="bi bi-clock-history fs-3" style="color: #f59e0b;"></i>
-                    </div>
-                </div>
-            </div>
+                {% endfor %}
+                {% endwith %}
+            {% else %}
+                <div class="empty-state mt-4"><i class="bi bi-bar-chart-line"></i><small>No expenses yet</small></div>
+            {% endif %}
         </div>
     </div>
 
-    <!-- Category Chart, Table and Wallets -->
-    <div class="row g-4">
-        <!-- Doughnut Chart -->
-        <div class="col-12 col-lg-4">
-            <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white border-0 pt-4 pb-0">
-                    <h5 class="mb-0 fw-bold">Expenses by Category</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="expenseChart" height="300"></canvas>
-                </div>
+    <!-- WALLETS -->
+    <div class="bento-cell wallets-cell animate-fade-up delay-4 d-flex flex-column">
+        <div class="cell-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <div class="cell-accent"></div>
+                <span class="cell-title">Wallets</span>
             </div>
+            <a href="{% url 'wallet_list' %}" class="manage-link">Manage →</a>
         </div>
-
-        <!-- Category Table -->
-        <div class="col-12 col-lg-4">
-            <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white border-0 pt-4 pb-0">
-                    <h5 class="mb-0 fw-bold">Category Breakdown</h5>
+        <div class="px-4 pb-4 flex-grow-1 d-flex flex-column gap-2 overflow-auto">
+            {% for w in wallets %}
+            <div class="wallet-row">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-credit-card-2-front wallet-icon"></i>
+                    <span class="wallet-name">{{ w.name }}</span>
                 </div>
-                <div class="card-body table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Category</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in category_data %}
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="rounded-circle me-2" style="width: 10px; height: 10px; background-color: #4f46e5;"></div>
-                                        <span class="fw-semibold text-dark" style="font-size: 0.85rem;">{{ item.category__name }}</span>
-                                    </div>
-                                </td>
-                                <td class="fw-bold text-secondary" style="font-size: 0.85rem;">৳ {{ item.total|floatformat:2 }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="2" class="text-center text-muted">No expenses found</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                <span class="wallet-balance">৳{{ w.balance|floatformat:2 }}</span>
             </div>
-        </div>
-
-        <!-- Wallets Card -->
-        <div class="col-12 col-lg-4">
-            <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white border-0 pt-4 pb-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold">My Wallets</h5>
-                    <a href="{% url 'wallet_list' %}" class="btn btn-sm btn-light rounded-pill px-3 fw-bold" style="font-size: 0.8rem;">
-                        Manage
-                    </a>
-                </div>
-                <div class="card-body" style="max-height: 320px; overflow-y: auto;">
-                    <div class="d-flex flex-column gap-3">
-                        {% for w in wallets %}
-                            <div class="d-flex justify-content-between align-items-center p-3 rounded-3" style="background-color: #f8fafc; border: 1px solid #f1f5f9;">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; border-radius: 8px; background-color: rgba(79, 70, 229, 0.1);">
-                                        <i class="bi bi-wallet2 text-primary"></i>
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-0 text-dark" style="font-size: 0.9rem;">{{ w.name }}</h6>
-                                    </div>
-                                </div>
-                                <span class="fw-extrabold text-dark" style="font-size: 0.95rem;">৳ {{ w.balance|floatformat:2 }}</span>
-                            </div>
-                        {% empty %}
-                            <div class="text-center py-4 text-muted">
-                                <p class="mb-2">No wallets created yet.</p>
-                                <a href="{% url 'wallet_list' %}" class="btn btn-sm btn-primary rounded-pill px-3 fw-bold">Add Wallet</a>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+            {% empty %}
+            <div class="empty-state mt-4">
+                <i class="bi bi-wallet2"></i>
+                <a href="{% url 'wallet_list' %}" class="btn btn-sm btn-primary rounded-pill px-3 mt-1">Add Wallet</a>
             </div>
+            {% endfor %}
         </div>
     </div>
 
+</div><!-- /.bento-grid -->
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const ctx = document.getElementById('expenseChart').getContext('2d');
-const expenseChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-        labels: [{% for item in category_data %}'{{ item.category__name }}',{% endfor %}],
-        datasets: [{
-            data: [{% for item in category_data %}{{ item.total }},{% endfor %}],
-            backgroundColor: [
-                '#4f46e5','#0ea5e9','#10b981','#f59e0b','#ef4444','#8b5cf6','#ec4899','#14b8a6','#f43f5e','#64748b'
-            ],
-            borderWidth: 2,
-            borderColor: '#ffffff',
-            hoverOffset: 4
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { position: 'bottom' },
-            tooltip: { enabled: true }
+const ctxEl = document.getElementById('expenseChart');
+if (ctxEl) {
+    new Chart(ctxEl.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+            labels: [{% for item in category_data %}'{{ item.category__name }}',{% endfor %}],
+            datasets: [{
+                data: [{% for item in category_data %}{{ item.total }},{% endfor %}],
+                backgroundColor: ['#4f46e5','#818cf8','#a5b4fc','#6366f1','#c7d2fe','#3730a3','#e0e7ff','#312e81'],
+                borderWidth: 3,
+                borderColor: '#f8fafc',
+                hoverOffset: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '74%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { boxWidth: 8, font: { family: 'Inter', size: 10 }, padding: 10, color: '#64748b' }
+                }
+            }
         }
-    }
-});
+    });
+}
 </script>
 
+<style>
+/* ===== BENTO GRID ===== */
+.bento-grid {
+    display: grid;
+    gap: 12px;
+    padding-bottom: 20px;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: auto;
+}
+
+/* Hero: row 1-2, col 1 */
+.hero-cell {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    min-height: 260px;
+    border-radius: 24px !important;
+    background: linear-gradient(145deg, #4338ca 0%, #4f46e5 50%, #6366f1 100%) !important;
+    border: none !important;
+    overflow: hidden;
+}
+.hero-inner {
+    position: relative;
+    z-index: 1;
+}
+.hero-cell::before {
+    content: '';
+    position: absolute;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    top: -60px; right: -60px;
+}
+.hero-cell::after {
+    content: '';
+    position: absolute;
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    bottom: -40px; left: -40px;
+}
+
+/* Metric cards: col 2-3, rows 1-2 */
+.metric-cell {
+    min-height: 120px;
+    border-radius: 18px !important;
+}
+.metric-cell:nth-child(2) { grid-column: 2; grid-row: 1; }
+.metric-cell:nth-child(3) { grid-column: 3; grid-row: 1; }
+.metric-cell:nth-child(4) { grid-column: 2; grid-row: 2; }
+.metric-cell:nth-child(5) { grid-column: 3; grid-row: 2; }
+
+/* Row 3 bottom cells */
+.chart-cell     { grid-column: 1; min-height: 280px; }
+.breakdown-cell { grid-column: 2; min-height: 280px; }
+.wallets-cell   { grid-column: 3; min-height: 280px; }
+
+/* Shared components */
+.live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.14);
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.live-badge small { color: rgba(255,255,255,0.9); font-size: 0.72rem; font-weight: 600; }
+.live-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+    animation: pulse-dot 2s infinite;
+}
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 20px;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.28);
+    border-radius: 50px;
+    color: #fff;
+    font-size: 0.87rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.hero-btn:hover { background: rgba(255,255,255,0.28); color: #fff; }
+
+.metric-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #94a3b8;
+}
+.metric-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(79,70,229,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: #4f46e5;
+    font-size: 1rem;
+}
+.metric-value {
+    font-size: clamp(1.3rem,2vw,1.75rem);
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+.metric-sub { font-size: 0.72rem; font-weight: 600; color: #4f46e5; }
+
+.cell-header {
+    padding: 16px 16px 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cell-accent {
+    width: 4px; height: 16px;
+    border-radius: 2px;
+    background: #4f46e5;
+}
+.cell-title { font-size: 0.88rem; font-weight: 700; color: #1e293b; }
+.manage-link { font-size: 0.75rem; color: #4f46e5; text-decoration: none; font-weight: 600; }
+.manage-link:hover { color: #3730a3; }
+
+.bar-label { font-size: 0.8rem; font-weight: 600; color: #475569; }
+.bar-value  { font-size: 0.78rem; font-weight: 700; color: #4f46e5; }
+
+.wallet-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(79,70,229,0.04);
+    border: 1px solid rgba(79,70,229,0.07);
+    transition: background 0.2s;
+}
+.wallet-row:hover { background: rgba(79,70,229,0.09); }
+.wallet-icon  { color: #4f46e5; font-size: 0.95rem; }
+.wallet-name  { font-size: 0.83rem; font-weight: 600; color: #334155; }
+.wallet-balance { font-size: 0.85rem; font-weight: 700; color: #1e293b; }
+
+.empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 6px;
+    color: #cbd5e1; font-size: 1.5rem;
+}
+.empty-state small { font-size: 0.8rem; color: #94a3b8; }
+
+.progress-fill { background: linear-gradient(90deg,#4f46e5,#818cf8) !important; }
+
+/* Responsive */
+@media (max-width: 992px) {
+    .bento-grid { grid-template-columns: 1fr 1fr; }
+    .hero-cell      { grid-column: 1 / 3; grid-row: 1; min-height: 180px; }
+    .metric-cell:nth-child(2) { grid-column: 1; grid-row: 2; }
+    .metric-cell:nth-child(3) { grid-column: 2; grid-row: 2; }
+    .metric-cell:nth-child(4) { grid-column: 1; grid-row: 3; }
+    .metric-cell:nth-child(5) { grid-column: 2; grid-row: 3; }
+    .chart-cell     { grid-column: 1; grid-row: 4; }
+    .breakdown-cell { grid-column: 2; grid-row: 4; }
+    .wallets-cell   { grid-column: 1 / 3; grid-row: 5; }
+}
+@media (max-width: 576px) {
+    .bento-grid { grid-template-columns: 1fr; }
+    .hero-cell,
+    .metric-cell:nth-child(2),
+    .metric-cell:nth-child(3),
+    .metric-cell:nth-child(4),
+    .metric-cell:nth-child(5),
+    .chart-cell, .breakdown-cell, .wallets-cell {
+        grid-column: 1 !important; grid-row: auto !important;
+    }
+}
+
+@keyframes pulse-dot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:.5; transform:scale(.8); }
+}
+</style>
 {% endblock %}
